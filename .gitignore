@@ -1,11 +1,9 @@
 __pycache__/
+/.vscode/
+/ssl
 *.pyc
 *.pyo
 *.log
 *.env
 /venv
-constantes/__pycache__/
-constantes/
-services/__pycache__/
-controllers/__pycache__/
-nohup.out
+/constantes/*
