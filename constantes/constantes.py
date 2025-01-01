@@ -6,4 +6,8 @@ class Config:
     INFLUXDB_BUCKET = "solar_data"
 
     API_KAMMTHAAR = "http://100.72.251.3:5000"
+    API_KAMMTHAAR_DEV = "http://192.168.232.118:5000"
+    USERNAME = "Kammthaar"
+    MOT_DE_PASSE = "Kammthaar1999"
+    
 

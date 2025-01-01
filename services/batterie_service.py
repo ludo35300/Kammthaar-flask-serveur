@@ -1,6 +1,7 @@
 from flask import jsonify
 from constantes.constantes import Config
 from models.battery_model import BatteryData
+from services.authentification_service import Authentification
 from services.influx_service import InfluxService
 import requests
 
@@ -50,9 +51,10 @@ class BatterieService:
         return None
     
     def get_batterie_data_realtime(self):
+        authentification_service = Authentification()
         try:
             # Effectuer la requête GET avec un délai de timeout
-            response = requests.get(Config.API_KAMMTHAAR+"/batterie/realtime", timeout=5)
+            response = authentification_service.get("/batterie/realtime")
             
             # Vérifier si la requête est réussie (statut HTTP 200)
             if response.status_code == 200:

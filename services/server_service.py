@@ -1,12 +1,18 @@
 from flask import jsonify
 from constantes.constantes import Config
 import requests
-import json
+
+from services.authentification_service import Authentification
+
 
 class ServerService:
+    def __init__(self):
+        self.authentification_service = Authentification()
+    
     def getStatus(self) -> bool:
         try:
-            response = requests.get(Config.API_KAMMTHAAR+"/status", timeout=5)  # Timeout pour éviter les blocages
+            # response = requests.get(Config.API_KAMMTHAAR+"/status", timeout=5)  # Timeout pour éviter les blocages
+            response = self.authentification_service.get("/status")
             return response.status_code == 200
         except requests.exceptions.RequestException:
             return False
@@ -14,7 +20,7 @@ class ServerService:
     def get_server_infos(self):
         try:
             # Effectuer la requête GET avec un délai de timeout
-            response = requests.get(Config.API_KAMMTHAAR+"/infos_serveur", timeout=5)
+            response = self.authentification_service.get("/infos_serveur")
             
             # Vérifier si la requête est réussie (statut HTTP 200)
             if response.status_code == 200:

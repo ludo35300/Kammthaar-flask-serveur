@@ -1,6 +1,7 @@
 from flask import jsonify
 from constantes.constantes import Config
 from models.ps_model import PSData
+from services.authentification_service import Authentification
 from services.influx_service import InfluxService
 import requests
 
@@ -47,9 +48,10 @@ class PsService:
         return None
     
     def get_ps_realtime(self):
+        authentification_service = Authentification()
         try:
             # Effectuer la requête GET avec un délai de timeout
-            response = requests.get(Config.API_KAMMTHAAR+"/ps/realtime", timeout=5)
+            response = authentification_service.get("/ps/realtime")
             
             # Vérifier si la requête est réussie (statut HTTP 200)
             if response.status_code == 200:
