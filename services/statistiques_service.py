@@ -1,6 +1,7 @@
 
 
 from constantes.constantes import Config
+from services.authentification_service import Authentification
 from services.influx_service import InfluxService
 import requests
 
@@ -40,13 +41,12 @@ class StatistiquesService:
         return None
     
     def get_statistiques_data_realtime(self):
+        authentification_service = Authentification()
         try:
-            # Effectuer la requête GET avec un délai de timeout
-            response = requests.get(Config.API_KAMMTHAAR+"/statistiques/realtime", timeout=5)
+            response = authentification_service.get("/statistiques/realtime")
             
             # Vérifier si la requête est réussie (statut HTTP 200)
             if response.status_code == 200:
-                # Tenter de décoder le contenu JSON
                 return response.json()  # Retourne directement les données JSON
             else:
                 print(f"Erreur HTTP: {response.status_code}")
