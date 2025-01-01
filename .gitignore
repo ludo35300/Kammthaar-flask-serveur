@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.log
+*.env
+/venv
+constantes/__pycache__/
+services/__pycache__/
+controllers/__pycache__/
+nohup.out
