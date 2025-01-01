@@ -1,0 +1,23 @@
+#Verifie si le pilote est chargé
+sudo modprobe xr_usb_serial_common
+
+#déchargé les perifs usb
+echo '1-1' | sudo tee /sys/bus/usb/drivers/usb/unbind
+
+#désactiver les pilotes
+sudo rmmod cdc_acm
+sudo rmmod cdc_xr_usb_serial
+sudo rmmod usbserial
+sudo rmmod xr_usb_serial_common
+
+
+#réinsr=taller le pilote (dans le dossier du pilote)
+sudo make clean
+sudo make
+sudo make install
+
+#recharger le pilote xr_usb_serial
+sudo modprobe xr_usb_serial_common
+
+#rattacher les périfs usb
+echo '1-1' | sudo tee /sys/bus/usb/drivers/usb/bind
