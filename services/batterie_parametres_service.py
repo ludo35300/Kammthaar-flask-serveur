@@ -73,7 +73,7 @@ class BatterieParametresService:
     def get_batterie_parametres_data_realtime(self):
         authentification_service = Authentification()
         try:
-            response = authentification_service.get("/batterie_parametres/realtime")
+            response = authentification_service.get("/batterie/parametres/realtime")
             
             # Vérifier si la requête est réussie (statut HTTP 200)
             if response.status_code == 200:
