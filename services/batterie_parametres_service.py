@@ -1,70 +1,14 @@
-from flask import jsonify
-from constantes.constantes import Config
-from models.battery_model import BatteryData
-from models.battery_parametres_model import BatteryParametresData
+from services import influx_service
 from services.authentification_service import Authentification
-from services.influx_service import InfluxService
 import requests
 
 
-class BatterieParametresService:
-    def __init__(self):
-        self.influx = InfluxService()
         
-    def get_last_batterie_parametres_data(self):
-        query = f'''
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-        |> range(start: -10d)   // Durée de recherche
-        |> filter(fn: (r) => r._measurement == "batterie_parametres")
-        |> last()              // Dernier enregistrement
-        '''
-        try:
-            result = self.influx.query_api.query(org=Config.INFLUXDB_ORG, query=query)
-            # On initialise un dictionnaire pour stocker les valeurs de paramètres
-            params = {}
+def get_last_batterie_parametres_data():
+    return influx_service.get_last_data('batterie_parametres')
+        
 
-            for table in result:
-                for record in table.records:
-                    field = record.get_field()  # Nom du champ
-                    value = record.get_value()  # Valeur du champ
-                    params[field] = value
-                    last_time = record.get_time()
-            # Construire l'objet PSData
-            battery_parametres_data = BatteryParametresData(
-                rated_charging_current=params.get('rated_charging_current'),
-                rated_load_current=params.get('rated_load_current'),
-                real_rated_voltage=params.get('real_rated_voltage'),
-                battery_type=params.get('battery_type'),
-                battery_capacity=params.get('battery_capacity'),
-                temp_compensation_coefficient=params.get('temp_compensation_coefficient'),
-                over_voltage_disconnect=params.get('over_voltage_disconnect'),
-                charging_limit_voltage=params.get('charging_limit_voltage'),
-                over_voltage_reconnect=params.get('over_voltage_reconnect'),
-                equalize_charging_voltage=params.get('equalize_charging_voltage'),
-                boost_charging_voltage=params.get('boost_charging_voltage'),
-                float_charging_voltage=params.get('float_charging_voltage'),
-                boost_reconnect_voltage=params.get('boost_reconnect_voltage'),
-                low_voltage_reconnect=params.get('low_voltage_reconnect'),
-                under_voltage_recover=params.get('under_voltage_recover'),
-                under_voltage_warning=params.get('under_voltage_warning'),
-                low_voltage_disconnect=params.get('low_voltage_disconnect'),
-                discharging_limit_voltage=params.get('discharging_limit_voltage'),
-                battery_rated_voltage=params.get('battery_rated_voltage'),
-                default_load_mode=params.get('equalize_duration'),
-                equalize_duration=params.get('boost_charging_voltage'),
-                boost_duration=params.get('boost_duration'),
-                battery_discharge=params.get('battery_discharge'),
-                battery_charge=params.get('battery_charge'),
-                charging_mode=params.get('charging_mode')
-            )
-            return battery_parametres_data.to_dict()
-
-        except Exception as e:
-            print("Erreur lors de la récupération des paramètres de batterie :", e)
-            # Si aucune donnée n'est trouvée ou en cas d'erreur, retourner None
-            return None
-
-    def get_batterie_parametres_data_realtime(self):
+def get_batterie_parametres_data_realtime():
         authentification_service = Authentification()
         try:
             response = authentification_service.get("/batterie/parametres/realtime")

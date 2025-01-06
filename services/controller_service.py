@@ -1,53 +1,15 @@
-from flask import jsonify
-from constantes.constantes import Config
-from models.controller_model import ControllerData
+from services import influx_service
 from services.authentification_service import Authentification
-from services.influx_service import InfluxService
 import requests
 
 
-class ControllerService:
-    def __init__(self):
-        self.influx = InfluxService()
+
+
     
-    def get_last_controller_data(self):
-        # Construire la requête pour récupérer les paramètres de batterie
-        query = f'''
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-        |> range(start: -1d)   // Durée de recherche
-        |> filter(fn: (r) => r._measurement == "controller_data")
-        |> last() 
-        '''
-        try:
-            # Exécuter la requête InfluxDB
-            result = self.influx.query_api.query(org=Config.INFLUXDB_ORG, query=query)
-            # Initialiser un dictionnaire pour stocker les valeurs des paramètres
-            params = {}
-            last_time = None  # Variable pour stocker l'horodatage de la dernière mesure
-            # Parcourir tous les enregistrements pour remplir le dictionnaire des paramètres
-            for table in result:
-                for record in table.records:
-                    field = record.get_field()  # Nom du champ
-                    value = record.get_value()  # Valeur du champ
-                    params[field] = value
-                    last_time = record.get_time()
-            # Construire l'objet ControllerData
-            controller_data = ControllerData(
-                controller_temperature=params.get('temperature'),
-                controller_load_amperage=params.get('amperage'),
-                controller_load_power=params.get('power'),
-                controller_load_voltage=params.get('voltage'),
-                controller_day_time=params.get('day_time'),
-                controller_night_time=params.get('night_time'),
-                controller_date=last_time
-            )
-            # Retourner l'objet sérialisé en JSON
-            return jsonify(controller_data.to_dict())
-        except Exception as e:
-            print("Erreur lors de la récupération des données du contrôleur :", e)
-            return jsonify({"error": "Erreur lors de la récupération des données"}), 500
+def get_last_controller_data():
+    return influx_service.get_last_data('controller_data')
         
-    def get_controller_data_realtime(self):
+def get_controller_data_realtime():
         authentification_service = Authentification()
         try:
             # Effectuer la requête GET avec un délai de timeout
@@ -64,22 +26,22 @@ class ControllerService:
             return None
         
     # Récupère les données d'ampérage en Ampères du controller des dernières 24 heures  
-    def get_last_24h_amperage(self):
-        data = self.influx.get_data_24h("controller_data", "amperage")
+def get_last_24h_amperage():
+        data = influx_service.get_data_24h("controller_data", "amperage")
         return data
     
-    # Récupère les données de voltage en Volts du controller des dernières 24 heures
-    def get_last_24h_voltage(self):
-        data = self.influx.get_data_24h("controller_data", "voltage")
+# Récupère les données de voltage en Volts du controller des dernières 24 heures
+def get_last_24h_voltage():
+        data = influx_service.get_data_24h("controller_data", "voltage")
         return data
     
     # Récupère les données de puissance en Watt des dernières 24 heures
-    def get_last_24h_power(self):
-        data = self.influx.get_data_24h("controller_data", "power")
+def get_last_24h_power():
+        data = influx_service.get_data_24h("controller_data", "power")
         return data
     
     # Récupère les dernières données de la température du controller des dernières 24 heures
-    def get_last_24h_temperature(self):
-        data = self.influx.get_data_24h("controller_data", "temperature")
+def get_last_24h_temperature():
+        data = influx_service.get_data_24h("controller_data", "temperature")
         return data
     
