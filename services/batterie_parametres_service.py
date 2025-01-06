@@ -10,23 +10,19 @@ import requests
 class BatterieParametresService:
     def __init__(self):
         self.influx = InfluxService()
-    
+        
     def get_last_batterie_parametres_data(self):
-        # Construire la requête pour récupérer les paramètres de batterie
         query = f'''
         from(bucket: "{Config.INFLUXDB_BUCKET}")
-        |> range(start: -1d)   // Durée de recherche
+        |> range(start: -10d)   // Durée de recherche
         |> filter(fn: (r) => r._measurement == "batterie_parametres")
-        |> last() 
+        |> last()              // Dernier enregistrement
         '''
-
         try:
-            # Exécuter la requête InfluxDB
             result = self.influx.query_api.query(org=Config.INFLUXDB_ORG, query=query)
-            # Initialiser un dictionnaire pour stocker les valeurs des paramètres
+            # On initialise un dictionnaire pour stocker les valeurs de paramètres
             params = {}
-            last_time = None  # Variable pour stocker l'horodatage de la dernière mesure
-            # Parcourir tous les enregistrements pour remplir le dictionnaire des paramètres
+
             for table in result:
                 for record in table.records:
                     field = record.get_field()  # Nom du champ
@@ -59,17 +55,15 @@ class BatterieParametresService:
                 boost_duration=params.get('boost_duration'),
                 battery_discharge=params.get('battery_discharge'),
                 battery_charge=params.get('battery_charge'),
-                charging_mode=params.get('charging_mode'),
-                battery_parametres_date=last_time
+                charging_mode=params.get('charging_mode')
             )
-            return jsonify(battery_parametres_data.to_dict())
+            return battery_parametres_data.to_dict()
 
         except Exception as e:
             print("Erreur lors de la récupération des paramètres de batterie :", e)
+            # Si aucune donnée n'est trouvée ou en cas d'erreur, retourner None
+            return None
 
-        # Si aucune donnée n'est trouvée ou en cas d'erreur
-        return None
-    
     def get_batterie_parametres_data_realtime(self):
         authentification_service = Authentification()
         try:

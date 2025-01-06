@@ -24,20 +24,17 @@ class PsService:
             result = self.influx.query_api.query(org=Config.INFLUXDB_ORG, query=query)
             # Initialiser un dictionnaire pour stocker les valeurs des paramètres
             params = {}
-            last_time = None  # Variable pour stocker l'horodatage de la dernière mesure
             # Parcourir tous les enregistrements pour remplir le dictionnaire des paramètres
             for table in result:
                 for record in table.records:
                     field = record.get_field()  # Nom du champ
                     value = record.get_value()  # Valeur du champ
                     params[field] = value
-                    last_time = record.get_time()
             # Construire l'objet PSData
             ps_data = PSData(
                 ps_voltage=params.get('voltage'),
                 ps_amperage=params.get('amperage'),
-                ps_power=params.get('power'),
-                ps_date=last_time
+                ps_power=params.get('power')
             )
             return jsonify(ps_data.to_dict())
 
@@ -65,31 +62,13 @@ class PsService:
             return None
         
     def get_last_24h_amperage(self):
-        query = f"""
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-            |> range(start: -1d)  // Dernières 24 heures
-            |> filter(fn: (r) => r._measurement == "ps_data")  // Filtrer par mesure
-            |> filter(fn: (r) => r._field == "amperage")        // Filtrer par champ
-        """
-        data = self.influx.get_data_24h(query)
+        data = self.influx.get_data_24h("ps_data", "amperage")
         return data
     
     def get_last_24h_voltage(self):
-        query = f"""
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-            |> range(start: -1d)  // Dernières 24 heures
-            |> filter(fn: (r) => r._measurement == "ps_data")  // Filtrer par mesure
-            |> filter(fn: (r) => r._field == "voltage")        // Filtrer par champ
-        """
-        data = self.influx.get_data_24h(query)
+        data = self.influx.get_data_24h("ps_data", "voltage")
         return data
     
     def get_last_24h_power(self):
-        query = f"""
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-            |> range(start: -1d)  // Dernières 24 heures
-            |> filter(fn: (r) => r._measurement == "ps_data")  // Filtrer par mesure
-            |> filter(fn: (r) => r._field == "power")        // Filtrer par champ
-        """
-        data = self.influx.get_data_24h(query)
+        data = self.influx.get_data_24h("ps_data", "power")
         return data

@@ -31,14 +31,12 @@ class BatterieStatusService:
                     value = record.get_value()  # Valeur du champ
                     params[field] = value
                     last_time = record.get_time()
-            print(params.get('battery_inner_resistence_abnormal'))
             # Construire l'objet BatteryStatusData
             battery_status_data = BatteryStatusData(
-                battery_inner_resistence_abnormal=params.get('battery_inner_resistence_abnormal'),
-                battery_status=params.get('battery_status'),
-                temperature_warning_status=params.get('temperature_warning_status'),
                 wrong_identifaction_for_rated_voltage=params.get('wrong_identifaction_for_rated_voltage'),
-                battery_status_date=last_time
+                battery_inner_resistence_abnormal=params.get('battery_inner_resistence_abnormal'),
+                temperature_warning_status=params.get('temperature_warning_status'),
+                battery_status=params.get('battery_status')
             )
             return jsonify(battery_status_data.to_dict())
 

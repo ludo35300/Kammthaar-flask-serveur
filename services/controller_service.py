@@ -18,7 +18,6 @@ class ControllerService:
         |> filter(fn: (r) => r._measurement == "controller_data")
         |> last() 
         '''
-
         try:
             # Exécuter la requête InfluxDB
             result = self.influx.query_api.query(org=Config.INFLUXDB_ORG, query=query)
@@ -42,7 +41,6 @@ class ControllerService:
                 controller_night_time=params.get('night_time'),
                 controller_date=last_time
             )
-
             # Retourner l'objet sérialisé en JSON
             return jsonify(controller_data.to_dict())
         except Exception as e:
@@ -54,7 +52,6 @@ class ControllerService:
         try:
             # Effectuer la requête GET avec un délai de timeout
             response = authentification_service.get("/mppt/realtime")
-            
             # Vérifier si la requête est réussie (statut HTTP 200)
             if response.status_code == 200:
                 # Tenter de décoder le contenu JSON
@@ -68,45 +65,21 @@ class ControllerService:
         
     # Récupère les données d'ampérage en Ampères du controller des dernières 24 heures  
     def get_last_24h_amperage(self):
-        query = f"""
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-            |> range(start: -1d)  // Dernières 24 heures
-            |> filter(fn: (r) => r._measurement == "controller_data")  // Filtrer par mesure
-            |> filter(fn: (r) => r._field == "amperage")        // Filtrer par champ
-        """
-        data = self.influx.get_data_24h(query)
+        data = self.influx.get_data_24h("controller_data", "amperage")
         return data
     
     # Récupère les données de voltage en Volts du controller des dernières 24 heures
     def get_last_24h_voltage(self):
-        query = f"""
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-            |> range(start: -1d)  // Dernières 24 heures
-            |> filter(fn: (r) => r._measurement == "controller_data")  // Filtrer par mesure
-            |> filter(fn: (r) => r._field == "voltage")        // Filtrer par champ
-        """
-        data = self.influx.get_data_24h(query)
+        data = self.influx.get_data_24h("controller_data", "voltage")
         return data
     
     # Récupère les données de puissance en Watt des dernières 24 heures
     def get_last_24h_power(self):
-        query = f"""
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-            |> range(start: -1d)  // Dernières 24 heures
-            |> filter(fn: (r) => r._measurement == "controller_data")  // Filtrer par mesure
-            |> filter(fn: (r) => r._field == "power")        // Filtrer par champ
-        """
-        data = self.influx.get_data_24h(query)
+        data = self.influx.get_data_24h("controller_data", "power")
         return data
     
     # Récupère les dernières données de la température du controller des dernières 24 heures
     def get_last_24h_temperature(self):
-        query = f"""
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-            |> range(start: -1d)  // Dernières 24 heures
-            |> filter(fn: (r) => r._measurement == "controller_data")  // Filtrer par mesure
-            |> filter(fn: (r) => r._field == "temperature")        // Filtrer par champ
-        """
-        data = self.influx.get_data_24h(query)
+        data = self.influx.get_data_24h("controller_data", "temperature")
         return data
     

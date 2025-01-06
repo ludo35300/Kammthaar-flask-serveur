@@ -30,8 +30,6 @@ class StatistiquesService:
                     field = record.get_field()  # Nom du champ
                     value = record.get_value()  # Valeur du champ
                     params[field] = value
-                    last_time = record.get_time()
-            params['last_measurement_time'] = last_time
            
             return params
         except Exception as e:

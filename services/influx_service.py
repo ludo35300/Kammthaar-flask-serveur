@@ -9,9 +9,15 @@ class InfluxService:
         self.client = influxdb_client.InfluxDBClient(url=Config.INFLUXDB_URL, token=Config.INFLUXDB_TOKEN, org=Config.INFLUXDB_ORG)
         self.query_api = self.client.query_api()
         
-    def get_data_24h(self, query):
+    def get_data_24h(self, measurement, field):
         # print(query)
         try:
+            query = f"""
+                from(bucket: "{Config.INFLUXDB_BUCKET}")
+                    |> range(start: -1d)  // Dernières 24 heures
+                    |> filter(fn: (r) => r._measurement == "{measurement}")  // Filtrer par mesure
+                    |> filter(fn: (r) => r._field == "{field}")        // Filtrer par champ
+                """
             # Exécuter la requête InfluxDB
             tables = self.query_api.query(org=Config.INFLUXDB_ORG, query=query)
 

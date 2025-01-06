@@ -31,18 +31,16 @@ class BatterieService:
                     field = record.get_field()  # Nom du champ
                     value = record.get_value()  # Valeur du champ
                     params[field] = value
-                    last_time = record.get_time()
             # Construire l'objet PSData
             battery_data = BatteryData(
                 battery_amperage=params.get('battery_amperage'),
                 battery_pourcent=params.get('battery_pourcent'),
                 battery_power=params.get('battery_power'),
                 battery_temp=params.get('battery_temp'),
-                battery_voltage=params.get('battery_voltage'),
-                battery_status=params.get('battery_status'),
-                battery_date=last_time
+                battery_voltage=params.get('battery_voltage')
+                
             )
-            return jsonify(battery_data.to_dict())
+            return jsonify(battery_data)
 
         except Exception as e:
             print("Erreur lors de la récupération des paramètres de batterie :", e)
@@ -55,7 +53,6 @@ class BatterieService:
         try:
             # Effectuer la requête GET avec un délai de timeout
             response = authentification_service.get("/batterie/realtime")
-            
             # Vérifier si la requête est réussie (statut HTTP 200)
             if response.status_code == 200:
                 # Tenter de décoder le contenu JSON
@@ -68,51 +65,21 @@ class BatterieService:
             return None
         
     def get_last_24h_pourcent(self):
-        query = f"""
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-            |> range(start: -1d)  // Dernières 24 heures
-            |> filter(fn: (r) => r._measurement == "battery_data")  // Filtrer par mesure
-            |> filter(fn: (r) => r._field == "battery_pourcent")        // Filtrer par champ
-        """
-        data = self.influx.get_data_24h(query)
+        data = self.influx.get_data_24h("battery_data", "battery_pourcent")
         return data
     
     def get_last_24h_amperage(self):
-        query = f"""
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-            |> range(start: -1d)  // Dernières 24 heures
-            |> filter(fn: (r) => r._measurement == "battery_data")  // Filtrer par mesure
-            |> filter(fn: (r) => r._field == "battery_amperage")        // Filtrer par champ
-        """
-        data = self.influx.get_data_24h(query)
+        data = self.influx.get_data_24h("battery_data", "battery_amperage")
         return data
     
     def get_last_24h_voltage(self):
-        query = f"""
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-            |> range(start: -1d)  // Dernières 24 heures
-            |> filter(fn: (r) => r._measurement == "battery_data")  // Filtrer par mesure
-            |> filter(fn: (r) => r._field == "battery_voltage")        // Filtrer par champ
-        """
-        data = self.influx.get_data_24h(query)
+        data = self.influx.get_data_24h("battery_data", "battery_voltage")
         return data
     
     def get_last_24h_power(self):
-        query = f"""
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-            |> range(start: -1d)  // Dernières 24 heures
-            |> filter(fn: (r) => r._measurement == "battery_data")  // Filtrer par mesure
-            |> filter(fn: (r) => r._field == "battery_power")        // Filtrer par champ
-        """
-        data = self.influx.get_data_24h(query)
+        data = self.influx.get_data_24h("battery_data", "battery_power")
         return data
     
     def get_last_24h_temp(self):
-        query = f"""
-        from(bucket: "{Config.INFLUXDB_BUCKET}")
-            |> range(start: -1d)  // Dernières 24 heures
-            |> filter(fn: (r) => r._measurement == "battery_data")  // Filtrer par mesure
-            |> filter(fn: (r) => r._field == "battery_temp")        // Filtrer par champ
-        """
-        data = self.influx.get_data_24h(query)
+        data = self.influx.get_data_24h("battery_data", "battery_temp")
         return data
