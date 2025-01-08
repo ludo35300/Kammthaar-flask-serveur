@@ -6,7 +6,7 @@ import requests
 
 
     
-def get_last_batterie_data():
+def get_last_data():
     return influx_service.get_last_data('battery_data')
     
 def get_batterie_data_realtime():
@@ -24,6 +24,9 @@ def get_batterie_data_realtime():
         except requests.exceptions.RequestException as e:
             print(f"Erreur lors de la requête: {e}")
             return None
+        
+def get_last_24h():
+    return influx_service.get_24h("battery_data")
         
 def get_last_24h_pourcent():
     return influx_service.get_data_24h("battery_data", "battery_pourcent")

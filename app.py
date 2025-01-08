@@ -3,10 +3,10 @@ from flask import Flask, request
 from flask_cors import CORS
 from flask_smorest import Api
 
+from controllers import battery_controller
 from controllers.controller_controller import controller_controller
 from controllers.statistiques_controller import statistiques_controller
 from controllers.ps_controller import ps_controller
-from controllers.battery_controller import batterie_controller
 from controllers.battery_parametres_controller import batterie_parametres_controller
 from controllers.server_controller import server_controller
 
@@ -34,17 +34,12 @@ def create_app():
     
 
     api = Api(app)
-    
-    # Middleware pour attacher le verrou à chaque requête
-    @app.before_request
-    def attach_lock():
-        request.environ['mppt_lock'] = mppt_lock
 
     # Enregistrement des blueprints
     api.register_blueprint(statistiques_controller)
     api.register_blueprint(controller_controller)
     api.register_blueprint(ps_controller)
-    api.register_blueprint(batterie_controller)
+    api.register_blueprint(battery_controller.blp_domaine_externe)
     api.register_blueprint(batterie_parametres_controller)
     api.register_blueprint(server_controller)
 

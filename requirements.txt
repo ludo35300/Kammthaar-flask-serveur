@@ -4,3 +4,4 @@ influxdb_client
 requests
 flask-talisman
 flask-jwt-extended
+marshmallow
