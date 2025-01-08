@@ -13,7 +13,7 @@ def get_status():
     if status is False:
         return jsonify({"status": "false"}), 404
     else:
-        return jsonify({"status": "True"}), 200
+        return jsonify({"status": "true"}), 200
 
 @server_controller.route('/infos_server', methods=['GET'])
 def get_server_infos():

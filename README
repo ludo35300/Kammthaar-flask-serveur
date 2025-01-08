@@ -1,0 +1,43 @@
+# **Kammthaar API**  
+### **Une API intelligente pour la surveillance des données solaires et de la batterie**
+
+Kammthaar API est une passerelle de données conçue pour fournir des informations en temps réel et des statistiques sur les systèmes solaires et de batteries. Elle connecte un Raspberry Pi, qui collecte les données directement via Modbus, à une base de données InfluxDB et expose ces données à une application Angular via une API REST sécurisée.  
+
+---
+
+## **Fonctionnalités principales :**
+- **Surveillance en temps réel :**  
+  Accès aux données instantanées de la batterie, y compris la tension, le courant, la puissance, et l'état de charge (SOC).  
+- **Historique des dernières 24 heures :**  
+  Analyse des données enregistrées, telles que l'ampérage, la température, ou le pourcentage de charge.  
+- **Statistiques journalières et mensuelles :**  
+  Calcul des tensions maximales/minimales, de l'énergie générée et consommée.  
+- **Support hors ligne :**  
+  Gestion des données même en cas de perte de connexion Internet, avec synchronisation automatique une fois la connexion rétablie.  
+- **Interopérabilité :**  
+  Conçu pour communiquer avec des interfaces web modernes (Angular) via des routes RESTful claires.  
+
+---
+
+## **Technologies utilisées :**
+- **Backend :** Flask, Flask-Smorest pour la gestion des routes RESTful.  
+- **Base de données :** InfluxDB pour le stockage efficace des données temporelles.  
+- **Raspberry Pi :** Collecte des données en utilisant Modbus RTU et les expose via un service local Flask.  
+- **Frontend :** Compatible avec Angular pour l'affichage des données et des visualisations (ApexCharts).  
+- **Sécurité :** Protection des endpoints grâce à JWT (JSON Web Tokens).  
+
+---
+
+## **Endpoints disponibles :**
+
+| **Endpoint**                 | **Méthode** | **Description**                                                                                   |
+|------------------------------|-------------|---------------------------------------------------------------------------------------------------|
+| `/batterie/realtime`         | GET         | Renvoie les dernières données en temps réel de la batterie.                                      |
+| `/batterie/last`             | GET         | Renvoie les dernières données enregistrées dans InfluxDB.                                        |
+| `/batterie/last/24hAmperage` | GET         | Renvoie les données d'ampérage enregistrées sur les dernières 24 heures.                         |
+| `/batterie/last/24hVoltage`  | GET         | Renvoie les données de voltage enregistrées sur les dernières 24 heures.                        |
+| `/batterie/last/24hPower`    | GET         | Renvoie les données de puissance enregistrées sur les dernières 24 heures.                      |
+| `/batterie/last/24hTemp`     | GET         | Renvoie les données de température enregistrées sur les dernières 24 heures.                    |
+| `/batterie/last/24hPourcent` | GET         | Renvoie les pourcentages de charge enregistrés sur les dernières 24 heures.                     |
+
+---

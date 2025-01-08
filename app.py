@@ -1,5 +1,5 @@
 from threading import Lock
-from flask import Flask, request
+from flask import Flask
 from flask_cors import CORS
 from flask_smorest import Api
 
@@ -21,12 +21,12 @@ def create_app():
     
     # Configuration CORS
     #CORS(app, resources={r"/api/*": {"origins": ["*", "http://localhost:4200"]}})
-    CORS(app, origins=["*"])
+    CORS(app, origins=["http://localhost:4200", "https://localhost:4200"])
     
     # Initialisation de l'API
-    app.config["API_TITLE"] = "Serveur du Kammthaar hors ligne"
+    app.config["API_TITLE"] = "Kammthaar Data Hub"
     app.config["API_VERSION"] = "v1"
-    app.config["OPENAPI_VERSION"] = "3.0.3"
+    app.config["OPENAPI_VERSION"] = "3.1.1"
     app.config["OPENAPI_URL_PREFIX"] = "/api/"
     app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
     app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"

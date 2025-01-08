@@ -31,18 +31,15 @@ class Validators:
 
 
     def validate_boolean(value, field_name: str) -> bool:
-        """Valide que la valeur est un booléen (True ou False)."""
+        """Valide que la valeur est un booléen."""
         if not isinstance(value, bool):
-            raise ValueError(f"{field_name} doit être un booléen (True ou False).")
+            raise ValueError(f"{field_name} doit être un booléen.")
         return value
 
     def validate_date(value: str, field_name: str) -> str:
-        """Valide que la valeur est une date valide dans le format YYYY-MM-DD."""
-        try:
-            # Essayer de convertir la chaîne en objet datetime
-            datetime.strptime(value, '%Y-%m-%d')
-        except ValueError:
-            raise ValueError(f"{field_name} doit être une date valide au format YYYY-MM-DD.")
+        """Valide que la valeur est une date valide."""
+        if not isinstance(value, datetime):
+            raise ValueError(f"{field_name} doit être un datetime valide.")
         return value
 
     def validate_int(value, field_name: str) -> int:

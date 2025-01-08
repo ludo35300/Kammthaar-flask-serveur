@@ -1,23 +1,38 @@
-from dataclasses import dataclass
-from datetime import datetime, time
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from models.validators import Validators
 
-@dataclass(frozen=True) # Lecture seule
+@dataclass
 class BatteryData:
     battery_voltage: float
     battery_amperage: float
     battery_power: float
     battery_temp: float
     battery_pourcent: int
-    battery_time: time
+
+    def __post_init__(self):
+        """Effectue les validations après l'initialisation."""
+        self.battery_voltage = Validators.validate_float(self.battery_voltage, "battery_voltage")
+        self.battery_amperage = Validators.validate_float(self.battery_amperage, "battery_amperage")
+        self.battery_power = Validators.validate_float(self.battery_power, "battery_power")
+        self.battery_temp = Validators.validate_float(self.battery_temp, "battery_temp")
+        self.battery_pourcent = Validators.validate_percentage(self.battery_pourcent, "battery_pourcent")
 
     def to_dict(self) -> dict:
         """Convertit l'objet en dictionnaire pour une sérialisation JSON."""
-        return {
-            "battery_voltage": self.battery_voltage,
-            "battery_amperage": self.battery_amperage,
-            "battery_power": self.battery_power,
-            "battery_temp": self.battery_temp,
-            "battery_pourcent": self.battery_pourcent,
-            "battery_time": self.battery_time,
-            
-        }
+        return asdict(self)
+    
+@dataclass
+class Value24h:
+    value: float
+    time: datetime
+
+    def __post_init__(self):
+        """Effectue les validations après l'initialisation."""
+        self.value = Validators.validate_float(self.value, "value")
+        self.battery_time = Validators.validate_date(self.time, "time")
+
+    def to_dict(self) -> dict:
+        """Convertit l'objet en dictionnaire pour une sérialisation JSON."""
+        return asdict(self)
+    

@@ -1,14 +1,12 @@
-from flask import jsonify
 from flask.views import MethodView
 from flask_cors import CORS
 from flask_smorest import Blueprint
-from dto.battery_schema import BaseBatterySchema
-from models.battery_model import BatteryData
+from dto.battery_schema import BaseBatterySchema, Value24hSchema
 from services import batterie_service
 from services import batterie_status_service
 
 blp_domaine_externe = Blueprint('batterie_controller', "Batterie", url_prefix='/batterie', description="Récupération des données de la batterie")
-CORS(blp_domaine_externe, origins="*") 
+CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200"))
 
 @blp_domaine_externe.route('/realtime')
 class BatterieRealtime(MethodView):
@@ -18,58 +16,27 @@ class BatterieRealtime(MethodView):
         Récupère les dernières données de la batterie en temps réel 
         -> Si système en ligne
         """
-        return  batterie_service.get_batterie_data_realtime()
+        return  batterie_service.get_batterie_data_realtime().json()
     
 @blp_domaine_externe.route('/last')
-class BatterieRealtime(MethodView):
+class BatterieLastRecord(MethodView):
     @blp_domaine_externe.response(200, BaseBatterySchema())
     def get(self):
         """ 
         Récupère les dernières données de la batterie enregistrées dans InfluxDB
         -> Si système hors ligne
         """
-        # print(jsonify(batterie_service.get_last_data))
         return batterie_service.get_last_data()
-
-@blp_domaine_externe.route('/last24h')
-class Projets(MethodView):
-    @blp_domaine_externe.response(200, BaseBatterySchema(many=True))
-    def get(self):
+    
+@blp_domaine_externe.route('/last/24h/<string:data_type>')
+@blp_domaine_externe.doc(params={'data_type': 'Type de données: "battery_voltage", "battery_amperage"'})
+class Last24hData(MethodView):
+    @blp_domaine_externe.response(200, Value24hSchema(many=True))
+    def get(self, data_type):
+        """ 
+            Récupère toutes les valeurs d'une donnée spécifique enregistrées dans InfluxDB sur les dernières 24 heures ainsi que la date/heure de l'enregistrement.
         """
-        Récupère la liste de données de la batterie des dernières 24 heures
-        """
-        return batterie_service.get_last_24h()
-
-
-
-
-# @blp_domaine_externe.route('/last_status_data', methods=['GET'])
-# def get_last_battery_status_data():
-#     return batterie_status_service.get_last_batterie_status_data()
-
-
-
-
-# @blp_domaine_externe.route('/status_realtime', methods=['GET'])
-# def get_battery_status_data_realtime():
-#     return batterie_status_service.get_batterie_status_data_realtime()
-
-# @blp_domaine_externe.route('/last24hPourcent', methods=['GET'])
-# def last_24h_pourcent():
-#     return batterie_service.get_last_24h_pourcent()
-    
-# @blp_domaine_externe.route('/last24hAmperage', methods=['GET'])
-# def last_24h_amperage():
-#     return batterie_service.get_last_24h_amperage()
-    
-# @blp_domaine_externe.route('/last24hVoltage', methods=['GET'])
-# def last_24h_voltage():
-#     return batterie_service.get_last_24h_voltage()
-
-# @blp_domaine_externe.route('/last24hPower', methods=['GET'])
-# def last_24h_power():
-#     return batterie_service.get_last_24h_power()
-    
-# @blp_domaine_externe.route('/last24hTemp', methods=['GET'])
-# def last_24h_temp():
-#     return batterie_service.get_last_24h_temp()
+        valid_columns = ["battery_voltage", "battery_amperage", "battery_power", "battery_temp", "battery_pourcent"]
+        if data_type not in valid_columns:
+            return {"erreur": f"'{data_type}' n'est pas un type de donnée valide."}, 400
+        return batterie_service.get_last_24h_data(data_type)

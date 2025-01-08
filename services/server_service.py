@@ -10,12 +10,7 @@ class ServerService:
         self.authentification_service = Authentification()
     
     def getStatus(self) -> bool:
-        try:
-            # response = requests.get(Config.API_KAMMTHAAR+"/status", timeout=5)  # Timeout pour éviter les blocages
-            response = self.authentification_service.get("/serveur/status")
-            return response.status_code == 200
-        except requests.exceptions.RequestException:
-            return False
+        return self.authentification_service.get("/serveur/status")
 
     def get_server_infos(self):
         try:
