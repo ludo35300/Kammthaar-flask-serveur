@@ -50,6 +50,7 @@ def get_last_data( measurement):
                     field = record.get_field()  # Nom du champ
                     value = record.get_value()  # Valeur du champ
                     params[field] = value
+                    params["date"] = record.get_time()
             return params
         except Exception as e:
             print("Erreur lors de la récupération des derniers paramètres de "+measurement+" :", e)

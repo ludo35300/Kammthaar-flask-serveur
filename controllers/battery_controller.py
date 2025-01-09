@@ -29,7 +29,6 @@ class BatterieLastRecord(MethodView):
         return batterie_service.get_last_data()
     
 @blp_domaine_externe.route('/last/24h/<string:data_type>')
-@blp_domaine_externe.doc(params={'data_type': 'Type de données: "battery_voltage", "battery_amperage"'})
 class Last24hData(MethodView):
     @blp_domaine_externe.response(200, Value24hSchema(many=True))
     def get(self, data_type):

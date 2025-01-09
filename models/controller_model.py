@@ -10,7 +10,7 @@ class ControllerData:
     controller_load_voltage: float
     controller_day_time: bool
     controller_night_time: bool
-    controller_date: datetime = datetime.now()
+    controller_date: datetime
     
     def __post_init__(self):
         """Effectue les validations après l'initialisation."""
@@ -25,5 +25,5 @@ class ControllerData:
     def to_dict(self):
         """Convertit l'objet en dictionnaire pour une sérialisation JSON."""
         data_dict = asdict(self)
-        data_dict["controller_date"] = data_dict["controller_date"].isoformat()
+        # data_dict["controller_date"] = data_dict["controller_date"].isoformat()
         return data_dict

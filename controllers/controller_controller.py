@@ -7,7 +7,7 @@ controller_controller = Blueprint('controller_controller', __name__, url_prefix=
 
 @controller_controller.route('/last', methods=['GET'])
 def get_last_controller_data():
-    return controller_service.get_last_24h_voltage()
+    return controller_service.get_last_controller_data()
 
 @controller_controller.route('/realtime', methods=['GET'])
 def get_controller_data_realtime():
