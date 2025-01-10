@@ -7,6 +7,7 @@ def get_last_data():
     
 def get_batterie_data_realtime():
         authentification_service = Authentification()
+        print(authentification_service.get("/batterie/realtime").json())
         return authentification_service.get("/batterie/realtime")
 
 def get_last_24h_data(column_name):
