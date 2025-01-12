@@ -3,8 +3,8 @@ from marshmallow import Schema, fields
 class BaseBatterySchema(Schema):
     battery_voltage = fields.Float(required=True, error_messages={"required": "Aucune donnée sur le voltage de la batterie."})
     battery_amperage = fields.Float(required=True, error_messages={"required": "Aucune donnée sur l'ampérage' de la batterie."})
-    battery_power = fields.Float(required=True, error_messages={"required": "Aucune donnée sur la puissance de la batterie de la batterie."})
-    battery_temp = fields.Int(required=True, error_messages={"required": "Aucune donnée sur la température de la batterie."})
+    battery_power = fields.Float(required=True, error_messages={"required": "Aucune donnée sur la puissance de la batterie."})
+    battery_temp = fields.Float(required=True, error_messages={"required": "Aucune donnée sur la température de la batterie."})
     battery_pourcent = fields.Int(required=True, error_messages={"required": "Aucune donnée sur le voltage de la batterie."})
     battery_time = fields.DateTime(required=False) 
 

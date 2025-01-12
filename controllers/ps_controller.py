@@ -1,39 +1,44 @@
-from flask import jsonify
+from flask.views import MethodView
+from flask_cors import CORS
 from flask_smorest import Blueprint
-
+from dto.battery_schema import Value24hSchema
+from dto.ps_schema import BasePsSchema
 from services import ps_service
 
-ps_controller = Blueprint('ps', __name__, url_prefix='/ps', description="")
+blp_domaine_externe = Blueprint('ps', "Panneau solaire", url_prefix='/ps', description="Récupération des données du panneau solaire")
+CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200"))
 
-@ps_controller.route('/last_ps_data', methods=['GET'])
-def get_last_controller_data():
-    last_ps = ps_service.get_last_ps_data()
 
-    # Vérifier si les données existent
-    if last_ps is None:
-        return jsonify({"error": "No data found"}), 404
-
-    # Retourner les données sous forme de JSON
-    return last_ps
-
-@ps_controller.route('/realtime', methods=['GET'])
-def get_ps_realtime():
-    ps_realtime = ps_service.get_ps_realtime()
-    # Vérifier si les données existent
-    if ps_realtime is None:
-        return jsonify({"error": "No data found"}), 404
-    # Retourner les données sous forme de JSON
-    return ps_realtime
-
-@ps_controller.route('/last24hVoltage', methods=['GET'])
-def last_24h_voltage():
-    return ps_service.get_last_24h_voltage()
-
-@ps_controller.route('/last24hAmperage', methods=['GET'])
-def last_24h_amperage():
-    return ps_service.get_last_24h_amperage()
+@blp_domaine_externe.route('/realtime')
+class ControllerRealtime(MethodView):
+    @blp_domaine_externe.response(200, BasePsSchema())
+    def get(self):
+        """ 
+        Récupère les données du panneau solaire en temps réel 
+        -> Si système en ligne
+        """
+        print(ps_service.get_realtime())
+        return  ps_service.get_realtime()
     
-@ps_controller.route('/last24hPower', methods=['GET'])
-def last_24h_amperage():
-    return ps_service.get_last_24h_power()
+@blp_domaine_externe.route('/last')
+class ControllerLastRecord(MethodView):
+    @blp_domaine_externe.response(200, BasePsSchema())
+    def get(self):
+        """ 
+        Récupère les dernières données du panneau solaire enregistrées dans InfluxDB
+        -> Si système hors ligne
+        """
+        print(ps_service.get_last())
+        return ps_service.get_last()
     
+@blp_domaine_externe.route('/last/24h/<string:data_type>')
+class Last24hData(MethodView):
+    @blp_domaine_externe.response(200, Value24hSchema(many=True))
+    def get(self, data_type):
+        """ 
+            Récupère toutes les valeurs d'une donnée spécifique enregistrées dans InfluxDB sur les dernières 24 heures ainsi que la date/heure de l'enregistrement.
+        """
+        valid_columns = ["voltage", "amperage", "power", "temperature"]
+        if data_type not in valid_columns:
+            return {"erreur": f"'{data_type}' n'est pas un type de donnée valide."}, 400
+        return ps_service.get_last_24h_data(data_type)

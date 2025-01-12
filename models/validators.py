@@ -59,7 +59,7 @@ class Validators:
         elif isinstance(value, str):
             try:
                 # Tente de convertir la chaîne en objet datetime
-                return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
+                return datetime.fromisoformat(value) 
             except ValueError:
                 raise ValueError(f"{field_name} doit être une chaîne de caractères au format %Y-%m-%d %H:%M:%S.")
         else:

@@ -1,52 +1,42 @@
-from flask import jsonify, request
+from flask.views import MethodView
+from flask_cors import CORS
 from flask_smorest import Blueprint
-
+from dto.battery_schema import Value24hSchema
+from dto.controller_schema import BaseControllerSchema
 from services import controller_service
 
-controller_controller = Blueprint('controller_controller', __name__, url_prefix='/controller', description="")
+blp_domaine_externe = Blueprint('controller_controller', "Controller MPPT", url_prefix='/controller', description="Récupération des données du controller MPPT")
+CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200"))
 
-@controller_controller.route('/last', methods=['GET'])
-def get_last_controller_data():
-    return controller_service.get_last_controller_data()
 
-@controller_controller.route('/realtime', methods=['GET'])
-def get_controller_data_realtime():
-    return controller_service.get_controller_data_realtime()
-
-@controller_controller.route('/last24hVoltage', methods=['GET'])
-def last_24h_voltage():
-    # controller_service = ControllerService()
-    return controller_service.get_last_24h_voltage()
-
-@controller_controller.route('/last24hAmperage', methods=['GET'])
-def last_24h_amperage():
-    # controller_service = ControllerService()
-    try:
-        data_controller = controller_service.get_last_24h_amperage()
-        if data_controller:
-            return jsonify(data_controller)  # Renvoie les données sous forme JSON
-        return jsonify({"error": "No data found"}), 404  # Aucune donnée trouvée
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@blp_domaine_externe.route('/realtime')
+class ControllerRealtime(MethodView):
+    @blp_domaine_externe.response(200, BaseControllerSchema())
+    def get(self):
+        """ 
+        Récupère les données du controller en temps réel 
+        -> Si système en ligne
+        """
+        return  controller_service.get_realtime()
     
-@controller_controller.route('/last24hPower', methods=['GET'])
-def last_24h_amperage():
-    # controller_service = ControllerService()
-    try:
-        data_controller = controller_service.get_last_24h_power()
-        if data_controller:
-            return jsonify(data_controller)  # Renvoie les données sous forme JSON
-        return jsonify({"error": "No data found"}), 404  # Aucune donnée trouvée
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@blp_domaine_externe.route('/last')
+class ControllerLastRecord(MethodView):
+    @blp_domaine_externe.response(200, BaseControllerSchema())
+    def get(self):
+        """ 
+        Récupère les dernières données du controller enregistrées dans InfluxDB
+        -> Si système hors ligne
+        """
+        return controller_service.get_last()
     
-@controller_controller.route('/last24hTemperature', methods=['GET'])
-def last_24h_amperage():
-    # controller_service = ControllerService()
-    try:
-        data_controller = controller_service.get_last_24h_temperature()
-        if data_controller:
-            return jsonify(data_controller)  # Renvoie les données sous forme JSON
-        return jsonify({"error": "No data found"}), 404  # Aucune donnée trouvée
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@blp_domaine_externe.route('/last/24h/<string:data_type>')
+class Last24hData(MethodView):
+    @blp_domaine_externe.response(200, Value24hSchema(many=True))
+    def get(self, data_type):
+        """ 
+            Récupère toutes les valeurs d'une donnée spécifique enregistrées dans InfluxDB sur les dernières 24 heures ainsi que la date/heure de l'enregistrement.
+        """
+        valid_columns = ["voltage", "amperage", "power", "temperature"]
+        if data_type not in valid_columns:
+            return {"erreur": f"'{data_type}' n'est pas un type de donnée valide."}, 400
+        return controller_service.get_last_24h_data(data_type)

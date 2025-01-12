@@ -5,7 +5,7 @@ from dto.battery_schema import BaseBatterySchema, Value24hSchema
 from services import batterie_service
 from services import batterie_status_service
 
-blp_domaine_externe = Blueprint('batterie_controller', "Batterie", url_prefix='/batterie', description="Récupération des données de la batterie")
+blp_domaine_externe = Blueprint("batterie_controller", "Batterie", url_prefix="/batterie", description="Récupération des données de la batterie")
 CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200"))
 
 @blp_domaine_externe.route('/realtime')
@@ -16,7 +16,7 @@ class BatterieRealtime(MethodView):
         Récupère les dernières données de la batterie en temps réel 
         -> Si système en ligne
         """
-        return  batterie_service.get_batterie_data_realtime().json()
+        return  batterie_service.get_realtime()
     
 @blp_domaine_externe.route('/last')
 class BatterieLastRecord(MethodView):
@@ -26,7 +26,7 @@ class BatterieLastRecord(MethodView):
         Récupère les dernières données de la batterie enregistrées dans InfluxDB
         -> Si système hors ligne
         """
-        return batterie_service.get_last_data()
+        return batterie_service.get_last()
     
 @blp_domaine_externe.route('/last/24h/<string:data_type>')
 class Last24hData(MethodView):

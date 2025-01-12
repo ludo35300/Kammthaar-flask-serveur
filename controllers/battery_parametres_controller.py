@@ -5,7 +5,7 @@ from services import batterie_parametres_service
 
 batterie_parametres_controller = Blueprint('batterie_parametres_controller', __name__, url_prefix='/batterie_parametres', description="")
 
-@batterie_parametres_controller.route('/last_batterie_parametres_data', methods=['GET'])
+@batterie_parametres_controller.route('/last', methods=['GET'])
 def get_last_batterie_parametres_data():
     return batterie_parametres_service.get_last_batterie_parametres_data()
 

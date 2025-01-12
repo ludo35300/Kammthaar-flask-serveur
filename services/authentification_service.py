@@ -8,7 +8,7 @@ class Authentification:
         url = f"{Config.API_KAMMTHAAR}/authentification/login"
         payload = {"username": Config.USERNAME, "password": Config.MOT_DE_PASSE}
         try:
-            response = requests.post(url, json=payload, timeout=5)
+            response = requests.post(url, json=payload, timeout=1)
             response.raise_for_status()  # Vérifie si le statut HTTP indique une erreur
             self.token = response.json()["access_token"]
         except requests.ConnectTimeout:
@@ -24,6 +24,6 @@ class Authentification:
     def get(self, endpoint):
         headers = {"Authorization": f"Bearer {self.token}"}
         url = f"{Config.API_KAMMTHAAR}{endpoint}"
-        response = requests.get(url, headers=headers, timeout=5)
+        response = requests.get(url, headers=headers, timeout=1)
         return response
 

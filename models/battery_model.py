@@ -30,7 +30,7 @@ class Value24h:
     def __post_init__(self):
         """Effectue les validations après l'initialisation."""
         self.value = Validators.validate_float(self.value, "value")
-        self.battery_time = Validators.validate_date(self.time, "time")
+        self.battery_time = Validators.validate_string(self.time, "time")
 
     def to_dict(self) -> dict:
         """Convertit l'objet en dictionnaire pour une sérialisation JSON."""

@@ -1,18 +1,33 @@
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from models.validators import Validators
 
 @dataclass
 class PSData:
-    ps_voltage: float
-    ps_amperage: float
+    voltage: float
+    amperage: float
     ps_power: float
     
     def __post_init__(self):
         """Effectue les validations après l'initialisation."""
-        self.ps_voltage = Validators.validate_int(self.ps_voltage, "ps_voltage")
-        self.ps_amperage = Validators.validate_float(self.ps_amperage, "ps_amperage")
-        self.ps_power = Validators.validate_float(self.ps_power, "ps_power")
+        self.voltage = Validators.validate_int(self.voltage, "ps_voltage")
+        self.amperage = Validators.validate_float(self.amperage, "ps_amperage")
+        self.power = Validators.validate_float(self.power, "ps_power")
         
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """Convertit l'objet en dictionnaire pour une sérialisation JSON."""
+        return asdict(self)
+    
+@dataclass
+class Value24h:
+    value: float
+    time: datetime
+
+    def __post_init__(self):
+        """Effectue les validations après l'initialisation."""
+        self.value = Validators.validate_float(self.value, "value")
+        self.ps_time = Validators.validate_string(self.time, "time")
+
+    def to_dict(self) -> dict:
         """Convertit l'objet en dictionnaire pour une sérialisation JSON."""
         return asdict(self)
