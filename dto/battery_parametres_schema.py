@@ -28,7 +28,7 @@ class BaseBatteryParametresSchema(Schema):
     battery_charge = fields.Int(required=True, error_messages={"required": "Aucune donnée sur la charge de la batterie."})
     charging_mode = fields.Str(required=True, error_messages={"required": "Aucune donnée sur le mode de charge de la batterie."})
     
-    battery_pazrametres_time = fields.DateTime(required=False) 
+    time = fields.DateTime(required=False) 
 
     # authorise les paramètres inconnus mais les efface
     class Meta:

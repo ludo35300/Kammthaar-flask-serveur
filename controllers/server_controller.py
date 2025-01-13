@@ -5,7 +5,7 @@ from dto.raspberry_schema import BaseRaspberrySchema
 from services.server_service import ServerService
 
 blp_domaine_externe = Blueprint("serveur", "Serveur", url_prefix="/serveur", description="Récupération des infos du Raspberry de Kammthaar")
-CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200"))
+CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200", "https://app.kammthaar.fr"))
 
 
 @blp_domaine_externe.route('/status')

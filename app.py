@@ -3,7 +3,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_smorest import Api
 
-from controllers import battery_controller, battery_parametres_controller, controller_controller, server_controller, ps_controller, statistiques_controller
+from controllers import battery_controller, battery_parametres_controller, charging_status_controller, controller_controller, discharging_status_controller, server_controller, ps_controller, statistiques_controller
 
 # Création du verrou global pour bloquer les accès multiples au controller MPPT
 mppt_lock = Lock()
@@ -16,7 +16,7 @@ def create_app():
     
     # Configuration CORS
     #CORS(app, resources={r"/api/*": {"origins": ["*", "http://localhost:4200"]}})
-    CORS(app, origins=["http://localhost:4200", "https://localhost:4200"])
+    CORS(app, origins=["http://localhost:4200", "https://localhost:4200", "https://app.kammthaar.fr"])
     
     # Initialisation de l'API
     app.config["API_TITLE"] = "Kammthaar Data Hub"
@@ -37,6 +37,8 @@ def create_app():
     api.register_blueprint(battery_controller.blp_domaine_externe)
     api.register_blueprint(battery_parametres_controller.blp_domaine_externe)
     api.register_blueprint(server_controller.blp_domaine_externe)
+    api.register_blueprint(charging_status_controller.blp_domaine_externe)
+    api.register_blueprint(discharging_status_controller.blp_domaine_externe)
 
     return app
 

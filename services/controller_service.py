@@ -8,14 +8,10 @@ def get_last():
         
 def get_realtime():
     """ Récupère les données du controller MPPT en temps réel """
-    data : ControllerData = Authentification().get("/mppt/realtime").json()
-    # print(data)
-    return data
+    return Authentification().get("/mppt/realtime").json()
 
 def get_last_24h_data(column_name):
     """Récupère les données d'une colonne spécifique des dernières 24 heures"""
-    data : ControllerData = influx_service.get_data_24h("controller_data", column_name)
-    print(data)
-    return data
+    return influx_service.get_data_24h("controller_data", column_name)
 
         
