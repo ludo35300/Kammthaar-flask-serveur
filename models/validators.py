@@ -37,10 +37,19 @@ class Validators:
         return value
 
     def validate_date(value: str, field_name: str) -> str:
+        
         """Valide que la valeur est une date valide."""
-        if not isinstance(value, datetime):
-            raise ValueError(f"{field_name} doit être un datetime valide.")
-        return value
+        try:
+            # Si la valeur est déjà une chaîne ISO 8601 valide (ex: 2025-01-13T12:56:01)
+            value_datetime = datetime.fromisoformat(value)
+        except ValueError:
+            try:
+                # Sinon, essaie un format personnalisé (ex: 2025-01-13 10:40:00.550183+00:00)
+                value_datetime = datetime.strptime(value, "%Y-%m-%d %H:%M:%S.%f%z")
+            except ValueError:
+                raise ValueError(f"{field_name} doit être une date valide.")
+
+        return value_datetime
 
     def validate_int(value, field_name: str) -> int:
         """Valide que la valeur est un entier ou peut être convertie en entier."""

@@ -20,7 +20,7 @@ class ControllerData:
         self.voltage = Validators.validate_float(self.voltage, "controller_load_voltage")
         self.day_time = Validators.validate_boolean(self.day_time, "controller_day_time")
         self.night_time = Validators.validate_boolean(self.night_time, "controller_night_time")
-        self.date = Validators.validate_date(self.date, "controller_date")
+        self.date = Validators.validate_string(self.date, "controller_date")
         
     def to_dict(self):
         """Convertit l'objet en dictionnaire pour une sérialisation JSON."""

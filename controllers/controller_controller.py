@@ -17,6 +17,7 @@ class ControllerRealtime(MethodView):
         Récupère les données du controller en temps réel 
         -> Si système en ligne
         """
+        # print("realtime "+controller_service.get_realtime().get("date"))
         return  controller_service.get_realtime()
     
 @blp_domaine_externe.route('/last')
@@ -27,6 +28,7 @@ class ControllerLastRecord(MethodView):
         Récupère les dernières données du controller enregistrées dans InfluxDB
         -> Si système hors ligne
         """
+        # print("last "+ controller_service.get_last().get("date"))
         return controller_service.get_last()
     
 @blp_domaine_externe.route('/last/24h/<string:data_type>')

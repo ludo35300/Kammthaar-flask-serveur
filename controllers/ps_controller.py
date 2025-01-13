@@ -17,7 +17,6 @@ class ControllerRealtime(MethodView):
         Récupère les données du panneau solaire en temps réel 
         -> Si système en ligne
         """
-        print(ps_service.get_realtime())
         return  ps_service.get_realtime()
     
 @blp_domaine_externe.route('/last')
@@ -28,7 +27,6 @@ class ControllerLastRecord(MethodView):
         Récupère les dernières données du panneau solaire enregistrées dans InfluxDB
         -> Si système hors ligne
         """
-        print(ps_service.get_last())
         return ps_service.get_last()
     
 @blp_domaine_externe.route('/last/24h/<string:data_type>')

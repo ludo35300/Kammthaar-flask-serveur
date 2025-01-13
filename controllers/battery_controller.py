@@ -2,6 +2,7 @@ from flask.views import MethodView
 from flask_cors import CORS
 from flask_smorest import Blueprint
 from dto.battery_schema import BaseBatterySchema, Value24hSchema
+from dto.battery_status_schema import BaseBatteryStatusSchema
 from services import batterie_service
 from services import batterie_status_service
 
@@ -39,3 +40,23 @@ class Last24hData(MethodView):
         if data_type not in valid_columns:
             return {"erreur": f"'{data_type}' n'est pas un type de donnée valide."}, 400
         return batterie_service.get_last_24h_data(data_type)
+    
+@blp_domaine_externe.route('/status/realtime')
+class BatterieRealtime(MethodView):
+    @blp_domaine_externe.response(200, BaseBatteryStatusSchema())
+    def get(self):
+        """ 
+        Récupère les dernières données du status de la batterie en temps réel 
+        -> Si système en ligne
+        """
+        return  batterie_status_service.get_status_realtime()
+    
+@blp_domaine_externe.route('/status/last')
+class BatterieLastRecord(MethodView):
+    @blp_domaine_externe.response(200, BaseBatteryStatusSchema())
+    def get(self):
+        """ 
+        Récupère les dernières données du status de la batterie enregistrées dans InfluxDB
+        -> Si système hors ligne
+        """
+        return batterie_status_service.get_last_status()
