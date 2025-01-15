@@ -3,7 +3,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_smorest import Api
 
-from controllers import battery_controller, battery_parametres_controller, charging_status_controller, controller_controller, discharging_status_controller, server_controller, ps_controller, statistiques_controller
+from controllers import battery_parametres_controller, batteryStatus_controller, chargingEquipmentStatus_controller, controllerData_controller, dailyStatistics_controller, dischargingEquipmentStatus_controller, energyStatistics_controller, loadData_controller, server_controller, solarData_controller
 
 # Création du verrou global pour bloquer les accès multiples au controller MPPT
 mppt_lock = Lock()
@@ -25,20 +25,21 @@ def create_app():
     app.config["OPENAPI_URL_PREFIX"] = "/api/"
     app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
     app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
-    
-    
 
     api = Api(app)
 
     # Enregistrement des blueprints
-    api.register_blueprint(statistiques_controller.blp_domaine_externe)
-    api.register_blueprint(controller_controller.blp_domaine_externe)
-    api.register_blueprint(ps_controller.blp_domaine_externe)
-    api.register_blueprint(battery_controller.blp_domaine_externe)
+    api.register_blueprint(batteryStatus_controller.blp_domaine_externe)
+    api.register_blueprint(chargingEquipmentStatus_controller.blp_domaine_externe)
+    api.register_blueprint(controllerData_controller.blp_domaine_externe)
+    api.register_blueprint(dailyStatistics_controller.blp_domaine_externe)
+    api.register_blueprint(dischargingEquipmentStatus_controller.blp_domaine_externe)
+    api.register_blueprint(energyStatistics_controller.blp_domaine_externe)
+    api.register_blueprint(loadData_controller.blp_domaine_externe)
+    api.register_blueprint(solarData_controller.blp_domaine_externe)
+    
     api.register_blueprint(battery_parametres_controller.blp_domaine_externe)
     api.register_blueprint(server_controller.blp_domaine_externe)
-    api.register_blueprint(charging_status_controller.blp_domaine_externe)
-    api.register_blueprint(discharging_status_controller.blp_domaine_externe)
 
     return app
 
