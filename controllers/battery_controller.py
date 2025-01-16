@@ -1,129 +1,62 @@
-from flask import jsonify, request
+from flask.views import MethodView
+from flask_cors import CORS
 from flask_smorest import Blueprint
-from services.batterie_service import BatterieService
-from services.batterie_status_service import BatterieStatusService
+from dto.battery_schema import BaseBatterySchema, Value24hSchema
+from dto.battery_status_schema import BaseBatteryStatusSchema
+from services import batterie_service
+from services import batterie_status_service
 
-batterie_controller = Blueprint('batterie_controller', __name__, url_prefix='/batterie', description="")
+blp_domaine_externe = Blueprint("batterie_controller", "Batterie", url_prefix="/batterie", description="Récupération des données de la batterie")
+CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200"))
 
-@batterie_controller.route('/last_batterie_data', methods=['GET'])
-def get_last_battery_data():
-    batterie_service = BatterieService()
-    last_batterie = batterie_service.get_last_batterie_data()
-
-    # Vérifier si les données existent
-    if last_batterie is None:
-        return jsonify({"error": "No data found"}), 404
-
-    # Retourner les données sous forme de JSON
-    return last_batterie
-
-@batterie_controller.route('/last_status_data', methods=['GET'])
-def get_last_battery_status_data():
-    batterie_status_service = BatterieStatusService()
-    last_batterie_status = batterie_status_service.get_last_batterie_status_data()
- 
-
-    # Vérifier si les données existent
-    if last_batterie_status is None:
-        return jsonify({"error": "No data found"}), 404
-
-    # Retourner les données sous forme de JSON
-    return last_batterie_status
-
-
-@batterie_controller.route('/batterie_realtime', methods=['GET'])
-def get_battery_data_realtime():
-    batterie_service = BatterieService()
+@blp_domaine_externe.route('/realtime')
+class BatterieRealtime(MethodView):
+    @blp_domaine_externe.response(200, BaseBatterySchema())
+    def get(self):
+        """ 
+        Récupère les dernières données de la batterie en temps réel 
+        -> Si système en ligne
+        """
+        return  batterie_service.get_realtime()
     
-    # Récupérer le verrou depuis `request.environ`
-    mppt_lock = request.environ.get('mppt_lock', None)
+@blp_domaine_externe.route('/last')
+class BatterieLastRecord(MethodView):
+    @blp_domaine_externe.response(200, BaseBatterySchema())
+    def get(self):
+        """ 
+        Récupère les dernières données de la batterie enregistrées dans InfluxDB
+        -> Si système hors ligne
+        """
+        return batterie_service.get_last()
     
-    if not mppt_lock:
-        return jsonify({"error": "MPPT lock is not configured"}), 500
-
-    # Essayer d'acquérir le verrou
-    if not mppt_lock.acquire(blocking=False):
-        return jsonify({"error": "MPPT is busy, please try again later"}), 429
-
+@blp_domaine_externe.route('/last/24h/<string:data_type>')
+class Last24hData(MethodView):
+    @blp_domaine_externe.response(200, Value24hSchema(many=True))
+    def get(self, data_type):
+        """ 
+            Récupère toutes les valeurs d'une donnée spécifique enregistrées dans InfluxDB sur les dernières 24 heures ainsi que la date/heure de l'enregistrement.
+        """
+        valid_columns = ["battery_voltage", "battery_amperage", "battery_power", "battery_temp", "battery_pourcent"]
+        if data_type not in valid_columns:
+            return {"erreur": f"'{data_type}' n'est pas un type de donnée valide."}, 400
+        return batterie_service.get_last_24h_data(data_type)
     
-    try:
-        # Lecture des données en temps réel
-        batterie_realtime = batterie_service.get_batterie_data_realtime()
-        # Vérifier si les données existent
-        if batterie_realtime is None:
-            return jsonify({"error": "No data found"}), 404
-        # Retourner les données sous forme de JSON
-        return batterie_realtime
+@blp_domaine_externe.route('/status/realtime')
+class BatterieRealtime(MethodView):
+    @blp_domaine_externe.response(200, BaseBatteryStatusSchema())
+    def get(self):
+        """ 
+        Récupère les dernières données du status de la batterie en temps réel 
+        -> Si système en ligne
+        """
+        return  batterie_status_service.get_status_realtime()
     
-    finally:
-        # Libérer le verrou après traitement
-        mppt_lock.release()
-
-@batterie_controller.route('/status_realtime', methods=['GET'])
-def get_battery_status_data_realtime():
-    batterie_status_service = BatterieStatusService()
-    status_realtime = batterie_status_service.get_batterie_status_data_realtime()
-
-    # Vérifier si les données existent
-    if status_realtime is None:
-        return jsonify({"error": "No data found"}), 404
-
-    # Retourner les données sous forme de JSON
-    return status_realtime
-
-
-
-@batterie_controller.route('/last24hPourcent', methods=['GET'])
-def last_24h_pourcent():
-    batterie_service = BatterieService()
-    try:
-        data_battery = batterie_service.get_last_24h_pourcent()
-        if data_battery:
-            return jsonify(data_battery)  # Renvoie les données sous forme JSON
-        return jsonify({"error": "No data found"}), 404  # Aucune donnée trouvée
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@batterie_controller.route('/last24hAmperage', methods=['GET'])
-def last_24h_amperage():
-    batterie_service = BatterieService()
-    try:
-        data_battery = batterie_service.get_last_24h_amperage()
-        if data_battery:
-            return jsonify(data_battery)  # Renvoie les données sous forme JSON
-        return jsonify({"error": "No data found"}), 404  # Aucune donnée trouvée
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@batterie_controller.route('/last24hVoltage', methods=['GET'])
-def last_24h_voltage():
-    batterie_service = BatterieService()
-    try:
-        data_battery = batterie_service.get_last_24h_voltage()
-        if data_battery:
-            return jsonify(data_battery)  # Renvoie les données sous forme JSON
-        return jsonify({"error": "No data found"}), 404  # Aucune donnée trouvée
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@batterie_controller.route('/last24hPower', methods=['GET'])
-def last_24h_power():
-    batterie_service = BatterieService()
-    try:
-        data_battery = batterie_service.get_last_24h_power()
-        if data_battery:
-            return jsonify(data_battery)  # Renvoie les données sous forme JSON
-        return jsonify({"error": "No data found"}), 404  # Aucune donnée trouvée
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@batterie_controller.route('/last24hTemp', methods=['GET'])
-def last_24h_temp():
-    batterie_service = BatterieService()
-    try:
-        data_battery = batterie_service.get_last_24h_temp()
-        if data_battery:
-            return jsonify(data_battery)  # Renvoie les données sous forme JSON
-        return jsonify({"error": "No data found"}), 404  # Aucune donnée trouvée
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@blp_domaine_externe.route('/status/last')
+class BatterieLastRecord(MethodView):
+    @blp_domaine_externe.response(200, BaseBatteryStatusSchema())
+    def get(self):
+        """ 
+        Récupère les dernières données du status de la batterie enregistrées dans InfluxDB
+        -> Si système hors ligne
+        """
+        return batterie_status_service.get_last_status()

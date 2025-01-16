@@ -1,31 +1,24 @@
-from flask import jsonify
+from flask.views import MethodView
+from flask_cors import CORS
 from flask_smorest import Blueprint
+from dto.raspberry_schema import BaseRaspberrySchema
 from services.server_service import ServerService
 
-server_controller = Blueprint('server', __name__, url_prefix='/server', description="Récupération des infos du serveur de Kammthaar")
+blp_domaine_externe = Blueprint("serveur", "Serveur", url_prefix="/serveur", description="Récupération des infos du Raspberry de Kammthaar")
+CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200", "https://app.kammthaar.fr"))
 
-@server_controller.route('/status', methods=['GET'])
-def get_status():
-    server_service = ServerService()
-    status = server_service.getStatus()
 
-    # Vérifier si les données existent
-    if status is False:
-        return jsonify({"status": "false"}), 404
-    else:
-        return jsonify({"status": "True"}), 200
+@blp_domaine_externe.route('/status')
+class ServeurStatus(MethodView):
+    @blp_domaine_externe.response(200, any)
+    def get(self):
+        return ServerService().getStatus()
 
-@server_controller.route('/infos_server', methods=['GET'])
-def get_server_infos():
-    server_service = ServerService()
-    server_infos = server_service.get_server_infos()
-
-    # Vérifier si les données existent
-    if server_infos is None:
-        return jsonify({"error": "No data found"}), 404
-
-    # Retourner les données sous forme de JSON
-    return server_infos
+@blp_domaine_externe.route('/infos')
+class ServeurInfos(MethodView):
+    @blp_domaine_externe.response(200, BaseRaspberrySchema)
+    def get(self):
+        return ServerService().get_server_infos()
 
 
     

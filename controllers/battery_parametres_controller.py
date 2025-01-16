@@ -1,29 +1,31 @@
 from flask import jsonify
+from flask.views import MethodView
+from flask_cors import CORS
 from flask_smorest import Blueprint
-from services.batterie_parametres_service import BatterieParametresService
 
-batterie_parametres_controller = Blueprint('batterie_parametres_controller', __name__, url_prefix='/batterie_parametres', description="")
+from dto.battery_parametres_schema import BaseBatteryParametresSchema
+from services import batterie_parametres_service
 
-@batterie_parametres_controller.route('/last_batterie_parametres_data', methods=['GET'])
-def get_last_batterie_parametres_data():
-    batterie_parametres_service = BatterieParametresService()
-    last_batterie = batterie_parametres_service.get_last_batterie_parametres_data()
 
-    # Vérifier si les données existent
-    if last_batterie is None:
-        return jsonify({"error": "No data found"}), 404
+blp_domaine_externe = Blueprint("batterie_parametres_controller", "Paramètres Batterie", url_prefix="/batterie/parametres", description="Récupération des paramètres de la batterie")
+CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200"))
 
-    # Retourner les données sous forme de JSON
-    return last_batterie
-
-@batterie_parametres_controller.route('/realtime', methods=['GET'])
-def get_batterie_parametres_data_realtime():
-    batterie_parametres_service = BatterieParametresService()
-    batterie_parametres_realtime = batterie_parametres_service.get_batterie_parametres_data_realtime()
-
-    # Vérifier si les données existent
-    if batterie_parametres_realtime is None:
-        return jsonify({"Erreur": "Aucune donnée trouvée"}), 404
-
-    # Retourner les données sous forme de JSON
-    return batterie_parametres_realtime
+@blp_domaine_externe.route('/realtime')
+class BatteriParametreseRealtime(MethodView):
+    @blp_domaine_externe.response(200, BaseBatteryParametresSchema())
+    def get(self):
+        """ 
+        Récupère les derniers paramètres de la batterie en temps réel 
+        -> Si système en ligne
+        """
+        return  batterie_parametres_service.get_realtime()
+    
+@blp_domaine_externe.route('/last')
+class BatterieParametreseLastRecord(MethodView):
+    @blp_domaine_externe.response(200, BaseBatteryParametresSchema())
+    def get(self):
+        """ 
+        Récupère les derniers paramètres de la batterie enregistrées dans InfluxDB
+        -> Si système hors ligne
+        """
+        return batterie_parametres_service.get_last()

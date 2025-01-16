@@ -1,14 +1,9 @@
 from threading import Lock
-from flask import Flask, request
+from flask import Flask
 from flask_cors import CORS
 from flask_smorest import Api
 
-from controllers.controller_controller import controller_controller
-from controllers.statistiques_controller import statistiques_controller
-from controllers.ps_controller import ps_controller
-from controllers.battery_controller import batterie_controller
-from controllers.battery_parametres_controller import batterie_parametres_controller
-from controllers.server_controller import server_controller
+from controllers import battery_parametres_controller, batteryStatus_controller, chargingEquipmentStatus_controller, controllerData_controller, dailyStatistics_controller, dischargingEquipmentStatus_controller, energyStatistics_controller, loadData_controller, server_controller, solarData_controller
 
 # Création du verrou global pour bloquer les accès multiples au controller MPPT
 mppt_lock = Lock()
@@ -21,32 +16,30 @@ def create_app():
     
     # Configuration CORS
     #CORS(app, resources={r"/api/*": {"origins": ["*", "http://localhost:4200"]}})
-    CORS(app, origins=["*"])
+    CORS(app, origins=["http://localhost:4200", "https://localhost:4200", "https://app.kammthaar.fr"])
     
     # Initialisation de l'API
-    app.config["API_TITLE"] = "Serveur du Kammthaar hors ligne"
+    app.config["API_TITLE"] = "Kammthaar Data Hub"
     app.config["API_VERSION"] = "v1"
-    app.config["OPENAPI_VERSION"] = "3.0.3"
+    app.config["OPENAPI_VERSION"] = "3.1.1"
     app.config["OPENAPI_URL_PREFIX"] = "/api/"
     app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
     app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
-    
-    
 
     api = Api(app)
-    
-    # Middleware pour attacher le verrou à chaque requête
-    @app.before_request
-    def attach_lock():
-        request.environ['mppt_lock'] = mppt_lock
 
     # Enregistrement des blueprints
-    api.register_blueprint(statistiques_controller)
-    api.register_blueprint(controller_controller)
-    api.register_blueprint(ps_controller)
-    api.register_blueprint(batterie_controller)
-    api.register_blueprint(batterie_parametres_controller)
-    api.register_blueprint(server_controller)
+    api.register_blueprint(batteryStatus_controller.blp_domaine_externe)
+    api.register_blueprint(chargingEquipmentStatus_controller.blp_domaine_externe)
+    api.register_blueprint(controllerData_controller.blp_domaine_externe)
+    api.register_blueprint(dailyStatistics_controller.blp_domaine_externe)
+    api.register_blueprint(dischargingEquipmentStatus_controller.blp_domaine_externe)
+    api.register_blueprint(energyStatistics_controller.blp_domaine_externe)
+    api.register_blueprint(loadData_controller.blp_domaine_externe)
+    api.register_blueprint(solarData_controller.blp_domaine_externe)
+    
+    api.register_blueprint(battery_parametres_controller.blp_domaine_externe)
+    api.register_blueprint(server_controller.blp_domaine_externe)
 
     return app
 
