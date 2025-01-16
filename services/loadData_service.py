@@ -38,3 +38,7 @@ def get_last():
         print("Erreur lors de la récupération des derniers paramètres de LoadData :", e)
     # Si aucune donnée n'est trouvée ou en cas d'erreur
     return None
+
+def get_last_24h_data(column_name):
+    """Récupère les données d'une colonne spécifique des dernières 24 heures"""
+    return InfluxDbService().get_data_24h("loadData", column_name)
