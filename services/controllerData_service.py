@@ -1,5 +1,5 @@
 
-from datetime import datetime, timezone
+from datetime import datetime
 from dto.controllerData_schema import ControllerDataSchema
 from entity.controllerData_entity import ControllerData
 from services.authentification_service import Authentification
@@ -35,7 +35,6 @@ def get_last():
             temperature=params.get("temperature"),
             date=params.get("date"),  # Ajoute la date si elle existe, sinon laisse None
         )
-        print(params.get("date"))
         controller_data_schema = ControllerDataSchema()   # Valider avec Marshmallow
         valid_data = controller_data_schema.load(controller_data.to_dict())  # Valider et transformer en dict
         return valid_data

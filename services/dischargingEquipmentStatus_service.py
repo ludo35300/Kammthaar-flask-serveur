@@ -21,7 +21,6 @@ def get_last():
     """ Récupère les dernières données enregistrées de la batterie dans influxDB"""
     try:
         params = InfluxDbService().get_last_data('dischargingEquipmentStatus')
-        print(params)
         # Mapper les paramètres récupérés vers un objet DischargingEquipmentStatusSchema
         discharging_equipment_status_data = DischargingEquipmentStatus(
             input_voltage_status = params.get("input_voltage_status"),

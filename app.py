@@ -3,7 +3,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_smorest import Api
 
-from controllers import battery_parametres_controller, batteryStatus_controller, chargingEquipmentStatus_controller, controllerData_controller, dailyStatistics_controller, dischargingEquipmentStatus_controller, energyStatistics_controller, loadData_controller, server_controller, solarData_controller
+from controllers import batteryParameters_controller, batteryParameters_controller, batteryStatus_controller, chargingEquipmentStatus_controller, controllerData_controller, dailyStatistics_controller, dischargingEquipmentStatus_controller, energyStatistics_controller, loadData_controller, server_controller, solarData_controller
 
 # Création du verrou global pour bloquer les accès multiples au controller MPPT
 mppt_lock = Lock()
@@ -29,6 +29,7 @@ def create_app():
     api = Api(app)
 
     # Enregistrement des blueprints
+    api.register_blueprint(batteryParameters_controller.blp_domaine_externe)
     api.register_blueprint(batteryStatus_controller.blp_domaine_externe)
     api.register_blueprint(chargingEquipmentStatus_controller.blp_domaine_externe)
     api.register_blueprint(controllerData_controller.blp_domaine_externe)
@@ -38,7 +39,6 @@ def create_app():
     api.register_blueprint(loadData_controller.blp_domaine_externe)
     api.register_blueprint(solarData_controller.blp_domaine_externe)
     
-    api.register_blueprint(battery_parametres_controller.blp_domaine_externe)
     api.register_blueprint(server_controller.blp_domaine_externe)
 
     return app

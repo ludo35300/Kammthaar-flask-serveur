@@ -33,8 +33,7 @@ def get_last():
             night_time=params.get("night_time"),
             date=params.get("date"),  # Ajoute la date si elle existe, sinon laisse None
         )
-        valid_data = DailyStatisticsSchema().load(daily_statistics_data.to_dict())  # Valider et transformer en dict
-        return valid_data
+        return DailyStatisticsSchema().load(daily_statistics_data.to_dict())  # Valider et transformer en dict
     except Exception as e:
         print("Erreur lors de la récupération des derniers paramètres de DailyStatistics :", e)
     # Si aucune donnée n'est trouvée ou en cas d'erreur
