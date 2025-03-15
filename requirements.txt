@@ -2,6 +2,6 @@ flask_smorest
 flask_cors
 influxdb_client
 requests
-flask-talisman
+# flask-talisman
 flask-jwt-extended
 marshmallow

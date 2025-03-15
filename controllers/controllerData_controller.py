@@ -9,21 +9,21 @@ blp_domaine_externe = Blueprint("controllerData_controller", "Données du contro
 CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200"))
 
 @blp_domaine_externe.route('/realtime')
-class BatterieRealtime(MethodView):
+class ControllerRealtime(MethodView):
     @blp_domaine_externe.response(200, ControllerDataSchema())
     def get(self):
         """ 
-        Récupère les dernières données de la batterie en temps réel 
+        Récupère les dernières données du controller en temps réel 
         -> Si système en ligne
         """
         return  controllerData_service.get_realtime()
 
 @blp_domaine_externe.route('/last')
-class BatterieLastRecord(MethodView):
+class ControllerLastRecord(MethodView):
     @blp_domaine_externe.response(200, ControllerDataSchema())
     def get(self):
         """ 
-        Récupère les dernières données de la batterie enregistrées dans InfluxDB
+        Récupère les dernières données du controller enregistrées dans InfluxDB
         -> Si système hors ligne
         """
         return controllerData_service.get_last()
