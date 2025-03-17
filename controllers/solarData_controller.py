@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask_cors import CORS
+from flask_jwt_extended import jwt_required
 from flask_smorest import Blueprint
 
 from dto.solarData_schema import SolarDataSchema, Value24hSchema
@@ -9,10 +10,11 @@ from services import solarData_service
 
 
 blp_domaine_externe = Blueprint("solarData_controller", "Données des panneaux solaires", url_prefix="/solarData", description="Récupération des données des panneaux solaires")
-CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200"))
+CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200", "https://app.kammthaar.fr"), supports_credentials=True)
 
 @blp_domaine_externe.route('/realtime')
 class SolarDataRealtime(MethodView):
+    @jwt_required()
     @blp_domaine_externe.response(200, SolarDataSchema())
     def get(self):
         """ 
@@ -23,6 +25,7 @@ class SolarDataRealtime(MethodView):
 
 @blp_domaine_externe.route('/last')
 class SolarDataLastRecord(MethodView):
+    @jwt_required()
     @blp_domaine_externe.response(200, SolarDataSchema())
     def get(self):
         """ 
@@ -33,6 +36,7 @@ class SolarDataLastRecord(MethodView):
     
 @blp_domaine_externe.route('/last/24h/<string:data_type>')
 class Last24hData(MethodView):
+    @jwt_required()
     @blp_domaine_externe.response(200, Value24hSchema(many=True))
     def get(self, data_type):
         """ 

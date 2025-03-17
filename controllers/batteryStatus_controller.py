@@ -1,14 +1,16 @@
 from flask.views import MethodView
 from flask_cors import CORS
+from flask_jwt_extended import jwt_required
 from flask_smorest import Blueprint
 from dto.batteryStatus_schema import BatteryStatusSchema, Value24hSchema
 from services import batteryStatus_service
 
 blp_domaine_externe = Blueprint("batterieStatus_controller", "Status de la batterie", url_prefix="/battery", description="Récupération des données de la batterie")
-CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200"))
+CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200", "https://app.kammthaar.fr"), supports_credentials=True)
 
 @blp_domaine_externe.route('/realtime')
 class BatterieRealtime(MethodView):
+    @jwt_required()
     @blp_domaine_externe.response(200, BatteryStatusSchema())
     def get(self):
         """ 
@@ -19,6 +21,7 @@ class BatterieRealtime(MethodView):
 
 @blp_domaine_externe.route('/last')
 class BatterieLastRecord(MethodView):
+    @jwt_required()
     @blp_domaine_externe.response(200, BatteryStatusSchema())
     def get(self):
         """ 
@@ -29,6 +32,7 @@ class BatterieLastRecord(MethodView):
     
 @blp_domaine_externe.route('/last/24h/<string:data_type>')
 class Last24hData(MethodView):
+    @jwt_required()
     @blp_domaine_externe.response(200, Value24hSchema(many=True))
     def get(self, data_type):
         """ 

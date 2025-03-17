@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask_cors import CORS
+from flask_jwt_extended import jwt_required
 from flask_smorest import Blueprint
 
 from dto.loadData_schema import LoadDataSchema, Value24hSchema
@@ -7,10 +8,11 @@ from services import loadData_service
 
 
 blp_domaine_externe = Blueprint("loadData_controller", "Données de consommation énergétique", url_prefix="/loadData", description="Récupération des données de consommation énergétique")
-CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200"))
+CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200", "https://app.kammthaar.fr"), supports_credentials=True)
 
 @blp_domaine_externe.route('/realtime')
 class LoadDataRealtime(MethodView):
+    @jwt_required()
     @blp_domaine_externe.response(200, LoadDataSchema())
     def get(self):
         """ 
@@ -21,6 +23,7 @@ class LoadDataRealtime(MethodView):
 
 @blp_domaine_externe.route('/last')
 class LoadDataLastRecord(MethodView):
+    @jwt_required()
     @blp_domaine_externe.response(200, LoadDataSchema())
     def get(self):
         """ 
