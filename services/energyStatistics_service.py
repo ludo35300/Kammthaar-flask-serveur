@@ -48,3 +48,7 @@ def get_last():
         print("Erreur lors de la récupération des derniers paramètres de EnergyStatistics :", e)
     # Si aucune donnée n'est trouvée ou en cas d'erreur
     return None
+
+def get_7days_data():
+    """Récupère les données d'une colonne spécifique des dernières 24 heures"""
+    return InfluxDbService().get_last_stats_journalier_7j()

@@ -28,3 +28,13 @@ class BatterieLastRecord(MethodView):
         -> Si système hors ligne
         """
         return energyStatistics_service.get_last()
+    
+@blp_domaine_externe.route('/7days')
+class BatterieLastRecord(MethodView):
+    @blp_domaine_externe.response(200) # TODO: schema a faire
+    def get(self):
+        """ 
+        Récupère les dernières statistiques énergétiques enregistrées dans InfluxDB
+        -> Si système hors ligne
+        """
+        return energyStatistics_service.get_7days_data()

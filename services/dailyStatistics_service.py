@@ -38,3 +38,4 @@ def get_last():
         print("Erreur lors de la récupération des derniers paramètres de DailyStatistics :", e)
     # Si aucune donnée n'est trouvée ou en cas d'erreur
     return None
+
