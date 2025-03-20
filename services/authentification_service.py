@@ -15,11 +15,6 @@ class Authentification:
             self.token = None  # Définit une valeur par défaut
         except requests.RequestException as e:
             self.token = None  # Définit une valeur par défaut
-        # response = requests.post(url, json=payload, timeout=5)
-        # if response.status_code == 200:
-        #     self.token = response.json()["access_token"]
-        # else:
-        #     raise Exception("Erreur d'authentification")
 
     def get(self, endpoint):
         headers = {"Authorization": f"Bearer {self.token}"}

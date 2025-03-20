@@ -1,7 +1,4 @@
 
-
-from datetime import datetime
-
 from dto.breadcrumb_schema import BreadcrumbSchema
 from entity.breadcrumb_entity import Breadcrumb
 from services.authentification_service import Authentification

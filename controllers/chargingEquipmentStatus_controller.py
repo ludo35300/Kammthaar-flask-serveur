@@ -1,15 +1,17 @@
 from flask.views import MethodView
 from flask_cors import CORS
+from flask_jwt_extended import jwt_required
 from flask_smorest import Blueprint
 
 from dto.chargingEquipmentStatus_schema import ChargingEquipmentStatusSchema
 from services import chargingEquipmentStatus_service
 
 blp_domaine_externe = Blueprint("chargingEquipmentStatus_controller", "Status de la charge", url_prefix="/charging", description="Récupération des données du status del a charge")
-CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200"))
+CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200", "https://app.kammthaar.fr"), supports_credentials=True)
 
 @blp_domaine_externe.route('/realtime')
 class ChargingEquipmentRealtime(MethodView):
+    @jwt_required()
     @blp_domaine_externe.response(200, ChargingEquipmentStatusSchema())
     def get(self):
         """ 
@@ -20,6 +22,7 @@ class ChargingEquipmentRealtime(MethodView):
 
 @blp_domaine_externe.route('/last')
 class ChargingEquipmenLastRecord(MethodView):
+    @jwt_required()
     @blp_domaine_externe.response(200, ChargingEquipmentStatusSchema())
     def get(self):
         """ 
