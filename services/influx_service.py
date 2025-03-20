@@ -1,15 +1,9 @@
 import influxdb_client
 from constantes.constantes import Config
-from influxdb_client.client.write_api import SYNCHRONOUS
-
-from dto.batteryStatus_schema import BatteryStatusSchema
-from entity.batteryStatus_entity import BatteryStatus
-
-
 
 client = influxdb_client.InfluxDBClient(url=Config.INFLUXDB_URL, token=Config.INFLUXDB_TOKEN, org=Config.INFLUXDB_ORG)
-
-class InfluxDbService:     
+class InfluxDbService:   
+    
     def get_data_24h(self, measurement, field):
         try:
             query = f"""
@@ -58,6 +52,38 @@ class InfluxDbService:
             return params
         except Exception as e:
             print("Erreur lors de la récupération des derniers paramètres de "+measurement+" :", e)
+        # Si aucune donnée n'est trouvée ou en cas d'erreur
+        return None
+    
+    
+    def get_last_stats_journalier_7j(self):
+        try:
+            query = f'''
+                from(bucket: "{Config.INFLUXDB_BUCKET}")
+                |> range(start: -7d, stop: now()) 
+                |> filter(fn: (r) => r["_measurement"] == "energyStatistics")
+                |> filter(fn: (r) => r["_field"] == "generated_today" or r["_field"] == "consumed_today")
+
+                |> aggregateWindow(every: 1d, offset: -3h, fn: last)
+                |> yield(name: "last")
+                '''
+
+            result = client.query_api().query(org=Config.INFLUXDB_ORG, query=query)
+            data = {}
+            
+            # Extraction des résultats
+            for table in result:
+                for record in table.records:
+                    date_key = record.get_time().strftime("%Y-%m-%d")  # Regroupement par jour
+                    if date_key not in data:
+                        data[date_key] = {}
+                    
+                    # Ajoute la valeur au bon champ (consumed_today ou generated_today)
+                    data[date_key][record.get_field()] = record.get_value()
+  
+            return data
+        except Exception as e:
+            print("Erreur lors de la récupération des 7 derniers jours des statistiques :", e)
         # Si aucune donnée n'est trouvée ou en cas d'erreur
         return None
 
