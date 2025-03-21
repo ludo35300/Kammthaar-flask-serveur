@@ -11,7 +11,7 @@ class LoadDataSchema(Schema):
     class Meta:
         unknown = "exclude"
         
-class Value24hSchema(Schema):
+class Load24hSchema(Schema):
     value = fields.Float(required=True, error_messages={"required": "Aucune donnée reçue de la batterie."})
     time = fields.DateTime(required=True) 
 
