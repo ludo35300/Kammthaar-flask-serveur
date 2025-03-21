@@ -12,7 +12,7 @@ class SolarDataSchema(Schema):
     class Meta:
         unknown = "exclude"
         
-class Value24hSchema(Schema):
+class Solar24hSchema(Schema):
     value = fields.Float(required=True, error_messages={"required": "Aucune donnée reçue de la batterie."})
     time = fields.DateTime(required=True) 
 

@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_jwt_extended import jwt_required
 from flask_smorest import Blueprint
 
-from dto.loadData_schema import LoadDataSchema, Value24hSchema
+from dto.loadData_schema import Load24hSchema, LoadDataSchema
 from services import loadData_service
 
 
@@ -34,7 +34,7 @@ class LoadDataLastRecord(MethodView):
     
 @blp_domaine_externe.route('/last/24h/<string:data_type>')
 class Last24hData(MethodView):
-    @blp_domaine_externe.response(200, Value24hSchema(many=True))
+    @blp_domaine_externe.response(200, Load24hSchema(many=True))
     def get(self, data_type):
         """ 
             Récupère toutes les valeurs d'une donnée spécifique enregistrées dans InfluxDB sur les dernières 24 heures ainsi que la date/heure de l'enregistrement.
