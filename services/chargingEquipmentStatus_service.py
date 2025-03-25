@@ -1,3 +1,5 @@
+from flask import jsonify
+import requests
 from dto.chargingEquipmentStatus_schema import ChargingEquipmentStatusSchema
 from entity.chargingEquipmentStatus_entity import ChargingEquipmentStatus
 from services.authentification_service import Authentification
@@ -7,7 +9,13 @@ from services.influx_service import InfluxDbService
 
 def get_realtime():
     """ Récupère les dernières données de la batterie en temps réel """
-    return Authentification().get("/charging/realtime").json()
+    try:
+        result =  Authentification().get("/charging/realtime")
+        return result.json()
+    except requests.exceptions.Timeout:
+        return jsonify({"erreur": "La connexion au serveur a expiré."}), 408  # Retour HTTP 408 pour un timeout
+    except requests.exceptions.RequestException as e:
+        return jsonify({"erreur": str(e)}), 500  # Erreur générique de la requête
 
 def get_last():
     """ Récupère les dernières données enregistrées de la batterie dans influxDB"""

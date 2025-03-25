@@ -19,6 +19,21 @@ class Authentification:
     def get(self, endpoint):
         headers = {"Authorization": f"Bearer {self.token}"}
         url = f"{Config.API_KAMMTHAAR}{endpoint}"
-        response = requests.get(url, headers=headers, timeout=5)
-        return response
+        
+        
+        try:
+            response = requests.get(url, headers=headers, timeout=5)
+            response.raise_for_status()  # Lève une exception si le code de statut HTTP indique une erreur
+            
+            # Si la réponse est un JSON, renvoyez directement le JSON
+            return response  # Convertit la réponse JSON en dictionnaire Python
+        except requests.ConnectTimeout:
+            print(f"Timeout lors de la connexion à {url}. Serveur distant inaccessible.")
+            return None  # Retourner False si un timeout se produit
+        except requests.RequestException as e:
+            print(f"Erreur de requête : {e}")
+            return None
+        
+        # response = requests.get(url, headers=headers, timeout=5)
+        # return response
 

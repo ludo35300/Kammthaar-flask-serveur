@@ -1,3 +1,4 @@
+from flask import jsonify
 from flask.views import MethodView
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required
@@ -13,7 +14,10 @@ CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:
 class ServeurStatus(MethodView):
     @blp_domaine_externe.response(200, any)
     def get(self):
-        return ServerService().getStatus()
+        if ServerService().is_raspberry_online():
+            return jsonify({"status": True, "message": "Raspberry Pi est en ligne"}), 200
+        else:
+            return jsonify({"status": False, "message": "Raspberry Pi est hors ligne"}), 200
 
 @blp_domaine_externe.route('/infos')
 class ServeurInfos(MethodView):

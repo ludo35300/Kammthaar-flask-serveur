@@ -1,12 +1,18 @@
 
 from datetime import  datetime, timedelta, timezone
-from flask import jsonify, make_response, request
+from flask_bcrypt import Bcrypt
+from flask import json, jsonify, make_response, request
 from flask_cors import CORS
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, set_access_cookies, set_refresh_cookies, unset_jwt_cookies
 from flask_smorest import Blueprint
 import jwt
 from constantes.constantes import Config
+bcrypt = Bcrypt()
+def load_users():
+        with open("users.json", "r") as file:
+            return json.load(file)
 
+users_db = load_users()
 
 blp_domaine_externe = Blueprint("authentification_controller", "Authentification", description="Fonction d'authentification")
 CORS(blp_domaine_externe, origins=("http://localhost:4200" , "https://localhost:4200", "https://app.kammthaar.fr"), supports_credentials=True)
@@ -16,19 +22,23 @@ def login():
     username = request.json.get('username', None)
     password = request.json.get('password', None)
     # Validation de l'utilisateur 
-     
+    if not username or not password:
+        return jsonify({"msg": "Missing username or password"}), 400
+    # Chercher l'utilisateur dans la base de données simulée
+    user = next((u for u in users_db if u['username'] == username), None)
+    
+    
+    if user and bcrypt.check_password_hash(user['password'], password):
+        access_token = create_access_token(identity=user['username'], expires_delta=timedelta(hours=1))
+        refresh_token = create_refresh_token(identity=user['username'])
 
-    if username != Config.USERNAME_ANGULAR and password != Config.MOT_DE_PASSE_ANGULAR :
-        return jsonify({"msg": "Identifiants incorrects"}), 401
-
-    access_token = create_access_token(identity=username, additional_claims={"username": username}, expires_delta=timedelta(hours=10))
-    refresh_token = create_refresh_token(identity=username)
-
-    response = make_response(jsonify({"message": "Connexion réussie"}))
-
+        response = make_response(jsonify({"message": "Connexion réussie"}), 200)
+    else:
+        return jsonify({"msg": "Identifiants incorrects"}), 403
+    
     # Définir le cookie avec SameSite=None et Secure=True
-    response.set_cookie('access_token_cookie', access_token, httponly=True, samesite='None', secure=True, max_age=36000)
-    response.set_cookie('refresh_token_cookie', refresh_token, httponly=True, samesite='None', secure=True, max_age=360000)
+    response.set_cookie('access_token_cookie', access_token, httponly=True, samesite='None', secure=True, max_age=3600) #une heure
+    response.set_cookie('refresh_token_cookie', refresh_token, httponly=True, samesite='None', secure=True, max_age=604800) #une semaine
     # Ajout des cookies à la réponse
     return response
 
@@ -42,10 +52,10 @@ def get_server_time():
 @jwt_required(refresh=True)   # Nécessite un refresh token
 def refresh():
     current_user = get_jwt_identity()
-    new_access_token = create_access_token(identity=current_user)
+    new_access_token = create_access_token(identity=current_user, additional_claims={"username": current_user}, expires_delta=timedelta(hours=10))
     
-    response = jsonify({"msg": "Token rafraîchi"})
-    set_access_cookies(response, new_access_token)
+    response = make_response(jsonify({"msg": "Token rafraîchi"}))
+    response.set_cookie('access_token_cookie', new_access_token, httponly=True, samesite='None', secure=True, max_age=60)
     return response
 
 # Déconnexion (efface les cookies)
@@ -90,8 +100,10 @@ def decode_jwt(token):
         return {"error": "Token expiré."}, 401
     except jwt.InvalidTokenError:
         return {"error": "Token invalide."}, 401
-    
+
+@jwt_required()
 def get_authenticated_user():
+    
     """Récupérer l'utilisateur depuis le token JWT."""
     token = request.cookies.get('access_token_cookie')  # Récupérer le token JWT dans les cookies
     if not token:
@@ -113,6 +125,6 @@ def get_user_info():
     user = get_authenticated_user()
     if user:
         # Accéder au nom d'utilisateur via la clé 'username' du dictionnaire
-        return jsonify({'username': user['username']}), 200
+        return jsonify({'username': user['sub']}), 200
     else:
         return jsonify({'message': 'User not authenticated'}), 401

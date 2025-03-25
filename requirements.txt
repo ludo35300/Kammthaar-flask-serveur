@@ -5,3 +5,5 @@ requests
 flask-jwt-extended
 marshmallow
 pyjwt
+flask-bcrypt
+ping3
