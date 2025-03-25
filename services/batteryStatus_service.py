@@ -1,3 +1,4 @@
+from flask import jsonify
 from dto.batteryStatus_schema import BatteryStatusSchema
 from entity.batteryStatus_entity import BatteryStatus
 from services.authentification_service import Authentification
@@ -7,7 +8,11 @@ from services.influx_service import InfluxDbService
 
 def get_realtime():
     """ Récupère les dernières données de la batterie en temps réel """
-    return Authentification().get("/battery/realtime").json()
+    try:
+        return Authentification().get("/battery/realtime").json()  # Augmenter le timeout à 10 secondes
+    except Exception:
+        return jsonify({"message": f"Erreur lors de la récupération des paramètres de la batterie en temps réel."}), 504
+    
 
 def get_last():
     """ Récupère les dernières données enregistrées de la batterie dans influxDB"""

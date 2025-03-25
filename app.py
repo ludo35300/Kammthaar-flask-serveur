@@ -1,11 +1,8 @@
 from datetime import timedelta
-import logging
-import ssl
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_smorest import Api
-
 
 from constantes.constantes import Config
 from controllers import authentification_controller, batteryParameters_controller, batteryParameters_controller, batteryStatus_controller, breadcrumb_controller, chargingEquipmentStatus_controller, controllerData_controller, dailyStatistics_controller, dischargingEquipmentStatus_controller, energyStatistics_controller, loadData_controller, server_controller, solarData_controller
@@ -15,9 +12,7 @@ def create_app():
     app = Flask(__name__)
     # Forcer l'utilisation de HTTPS
     # Talisman(app, force_https=True)
-    app.debug = True
-    app.logger.setLevel(logging.DEBUG)
-    
+    app.debug = False
     
     # Initialisation de l'API
     app.config["API_TITLE"] = "Kammthaar Data Hub"
@@ -37,6 +32,8 @@ def create_app():
     app.config['JWT_CSRF_IN_COOKIES'] = True
     app.config['JWT_COOKIE_SAMESITE'] = 'None'
     jwt = JWTManager(app)
+    
+  
     
     # Configuration CORS
     CORS(app, origins=["http://localhost:4200", "https://localhost:4200", "https://app.kammthaar.fr"], supports_credentials=True)
@@ -64,5 +61,4 @@ app = create_app()
 
 
 if __name__ == '__main__':
-    # app.run(host="0.0.0.0", port=5000, ssl_context=('/ssl/kammthaar.fr_ssl_certificate.pem', '/ssl/private.pem'))
-    app.run(host="0.0.0.0", port=5000)
+   app.run(host="0.0.0.0", port=5000)

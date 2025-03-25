@@ -1,0 +1,12 @@
+[
+    {
+        "password": "$2b$12$jD1wb5Z1DKQ43qKuYknNmO2qFuHXVj9Q1XenPM1c2ZSnB8Y/SqZkS",
+        "role": "admin",
+        "username": "Ludo35300"
+    },
+    {
+        "password": "$2b$12$hSThgt7FA2SaofstwV1QDeOqD7Fcx4.aS5wODznWZIqaz2SFEXQeG",
+        "role": "invite",
+        "username": "Invite"
+    }
+]
